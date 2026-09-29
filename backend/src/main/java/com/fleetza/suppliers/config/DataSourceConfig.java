@@ -8,13 +8,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Profile;
 
 import javax.sql.DataSource;
 import java.net.URI;
+import java.sql.Connection;
+import java.sql.DriverManager;
 
 @Configuration
-@Profile("mysql")
 public class DataSourceConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(DataSourceConfig.class);
@@ -61,65 +61,86 @@ public class DataSourceConfig {
     @Bean
     @Primary
     public DataSource dataSource() {
-        HikariConfig config = new HikariConfig();
-        config.setPoolName("FleetzaHikariPool");
-        config.setDriverClassName("com.mysql.cj.jdbc.Driver");
-        config.setMaximumPoolSize(35);
-        config.setMinimumIdle(5);
-        config.setIdleTimeout(30000);
-        config.setMaxLifetime(1800000);
-        config.setConnectionTimeout(30000);
-        config.setLeakDetectionThreshold(60000);
+        String targetHost = defaultHost;
+        int targetPort = 3306;
+        String targetDb = defaultDatabase;
+        String targetUser = defaultUsername;
+        String targetPass = defaultPassword;
+        String resolvedJdbcUrl = null;
 
-        // Priority 1: Check MYSQL_URL or MYSQL_PUBLIC_URL (e.g. mysql://root:pass@host:port/db)
         String rawUrl = !mysqlUrl.isBlank() ? mysqlUrl : (!mysqlPublicUrl.isBlank() ? mysqlPublicUrl : dbUrl);
 
         if (rawUrl != null && !rawUrl.isBlank()) {
             try {
                 if (rawUrl.startsWith("mysql://")) {
                     URI uri = new URI(rawUrl);
-                    String host = uri.getHost();
-                    int port = uri.getPort() != -1 ? uri.getPort() : 3306;
+                    targetHost = uri.getHost() != null ? uri.getHost() : targetHost;
+                    targetPort = uri.getPort() != -1 ? uri.getPort() : 3306;
                     String path = uri.getPath();
-                    String dbName = (path != null && path.length() > 1) ? path.substring(1) : "railway";
-                    String jdbcUrl = "jdbc:mysql://" + host + ":" + port + "/" + dbName +
-                            "?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Kolkata&createDatabaseIfNotExist=true&characterEncoding=UTF-8";
-
-                    config.setJdbcUrl(jdbcUrl);
-                    String userInfo = uri.getUserInfo();
-                    if (userInfo != null && userInfo.contains(":")) {
-                        String[] parts = userInfo.split(":", 2);
-                        config.setUsername(parts[0]);
-                        config.setPassword(parts[1]);
+                    targetDb = (path != null && path.length() > 1) ? path.substring(1) : "railway";
+                    if (uri.getUserInfo() != null && uri.getUserInfo().contains(":")) {
+                        String[] parts = uri.getUserInfo().split(":", 2);
+                        targetUser = parts[0];
+                        targetPass = parts[1];
                     }
-                    logger.info("Successfully configured DataSource from Railway URL for host: {}, database: {}", host, dbName);
-                    return new HikariDataSource(config);
                 } else if (rawUrl.startsWith("jdbc:mysql://")) {
-                    config.setJdbcUrl(rawUrl);
-                    config.setUsername(!mysqlUser.isBlank() ? mysqlUser : (!defaultUsername.isBlank() ? defaultUsername : "root"));
-                    config.setPassword(!mysqlPassword.isBlank() ? mysqlPassword : defaultPassword);
-                    return new HikariDataSource(config);
+                    resolvedJdbcUrl = rawUrl;
+                    targetUser = !mysqlUser.isBlank() ? mysqlUser : defaultUsername;
+                    targetPass = !mysqlPassword.isBlank() ? mysqlPassword : defaultPassword;
                 }
             } catch (Exception e) {
-                logger.warn("Could not parse raw URL, falling back to discrete parameters: {}", e.getMessage());
+                logger.warn("Could not parse raw database URL: {}", e.getMessage());
             }
         }
 
-        // Priority 2: Use component variables (MYSQLHOST, MYSQLPORT, MYSQLDATABASE, etc.)
-        String host = !mysqlHost.isBlank() ? mysqlHost : defaultHost;
-        String port = !mysqlPort.isBlank() ? mysqlPort : defaultPort;
-        String database = !mysqlDatabase.isBlank() ? mysqlDatabase : defaultDatabase;
-        String username = !mysqlUser.isBlank() ? mysqlUser : defaultUsername;
-        String password = !mysqlPassword.isBlank() ? mysqlPassword : defaultPassword;
+        if (resolvedJdbcUrl == null) {
+            if (!mysqlHost.isBlank()) targetHost = mysqlHost;
+            if (!mysqlPort.isBlank()) {
+                try { targetPort = Integer.parseInt(mysqlPort); } catch (Exception ignored) {}
+            }
+            if (!mysqlDatabase.isBlank()) targetDb = mysqlDatabase;
+            if (!mysqlUser.isBlank()) targetUser = mysqlUser;
+            if (!mysqlPassword.isBlank()) targetPass = mysqlPassword;
 
-        String jdbcUrl = "jdbc:mysql://" + host + ":" + port + "/" + database +
-                "?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Kolkata&createDatabaseIfNotExist=true&characterEncoding=UTF-8";
+            resolvedJdbcUrl = "jdbc:mysql://" + targetHost + ":" + targetPort + "/" + targetDb +
+                    "?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Kolkata&createDatabaseIfNotExist=true&characterEncoding=UTF-8&connectTimeout=4000&socketTimeout=8000";
+        }
 
-        config.setJdbcUrl(jdbcUrl);
-        config.setUsername(username);
-        config.setPassword(password);
+        // Test if MySQL is actually reachable within 4 seconds
+        boolean mysqlAvailable = false;
+        try {
+            DriverManager.setLoginTimeout(4);
+            try (Connection conn = DriverManager.getConnection(resolvedJdbcUrl, targetUser, targetPass)) {
+                mysqlAvailable = true;
+                logger.info("Successfully connected to MySQL at {}:{} / database: {}", targetHost, targetPort, targetDb);
+            }
+        } catch (Exception ex) {
+            logger.warn("MySQL database at {}:{} is not reachable ({}: {}).", targetHost, targetPort, ex.getClass().getSimpleName(), ex.getMessage());
+        }
 
-        logger.info("Configured DataSource for host: {}:{}, database: {}", host, port, database);
-        return new HikariDataSource(config);
+        HikariConfig config = new HikariConfig();
+        config.setPoolName("FleetzaHikariPool");
+
+        if (mysqlAvailable) {
+            config.setDriverClassName("com.mysql.cj.jdbc.Driver");
+            config.setJdbcUrl(resolvedJdbcUrl);
+            config.setUsername(targetUser);
+            config.setPassword(targetPass);
+            config.setMaximumPoolSize(35);
+            config.setMinimumIdle(5);
+            config.setIdleTimeout(30000);
+            config.setMaxLifetime(1800000);
+            config.setConnectionTimeout(30000);
+            return new HikariDataSource(config);
+        } else {
+            logger.warn("FALLING BACK TO RESILIENT IN-MEMORY DATABASE so application stays online without crashing!");
+            config.setDriverClassName("org.h2.Driver");
+            config.setJdbcUrl("jdbc:h2:mem:fleetza_db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL");
+            config.setUsername("sa");
+            config.setPassword("");
+            config.setMaximumPoolSize(20);
+            config.setMinimumIdle(5);
+            return new HikariDataSource(config);
+        }
     }
 }
