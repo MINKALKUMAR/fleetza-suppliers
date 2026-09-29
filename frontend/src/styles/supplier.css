@@ -1,0 +1,1199 @@
+/* ==========================================================================
+   FLEETZA - SUPPLIER / DRIVER MOBILE-FIRST INTERFACE
+   Ultra-clean, modern, simple UI designed for fast 1-tap fleet availability
+   and immediate response to incoming duty dispatches.
+   ========================================================================== */
+
+.supplier-home-container {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0.25rem 0 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* ---------------- 1. Top Header Profile Card (Small UI) ---------------- */
+.supplier-header-card {
+  background: linear-gradient(135deg, #0b132b 0%, #1c2541 100%);
+  color: #ffffff;
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  border: 1px solid #3a4768;
+  box-shadow: 0 2px 10px rgba(11, 19, 43, 0.2);
+}
+
+.supplier-profile-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.supplier-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #0b132b;
+  font-weight: 900;
+  font-size: 1.05rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
+  flex-shrink: 0;
+  border: 1.5px solid #ffffff;
+}
+
+.supplier-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.supplier-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.supplier-submeta {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  font-size: 0.72rem;
+  color: #cbd5e1;
+}
+
+.meta-badge {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.12rem 0.45rem;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+}
+
+.meta-badge.fleet-count {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fde68a;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  font-weight: 700;
+}
+
+.supplier-controls-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.ctrl-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  min-height: 32px;
+  transition: all 0.12s ease;
+}
+
+.ctrl-btn.refresh-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid #475569;
+  color: #e2e8f0;
+}
+
+.ctrl-btn.refresh-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.ctrl-btn.sound-btn {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1.5px solid #10b981;
+  color: #34d399;
+}
+
+.ctrl-btn.sound-btn.muted {
+  background: rgba(148, 163, 184, 0.15);
+  border-color: #64748b;
+  color: #94a3b8;
+}
+
+.ctrl-btn.sound-btn.ringing-alert {
+  background: #ef4444;
+  border-color: #dc2626;
+  color: #ffffff;
+  animation: siren-alert-glow 1s infinite alternate;
+}
+
+@keyframes siren-alert-glow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+  }
+}
+
+.ctrl-btn.admin-wa-btn {
+  background: #25d366;
+  border-color: #16a34a;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.ctrl-btn.admin-wa-btn:hover {
+  background: #16a34a;
+  border-color: #15803d;
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(37, 211, 102, 0.4);
+}
+
+/* ---------------- Status Feedback Banner & Close Button ---------------- */
+.alert-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.65rem 0.95rem;
+  border-radius: var(--radius-md, 8px);
+  font-size: 0.86rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 0.85rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  animation: fleetzaAlertSlide 0.2s ease forwards;
+}
+
+@keyframes fleetzaAlertSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.alert-banner.success {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1.5px solid #6ee7b7;
+}
+
+.alert-banner.info {
+  background: #eff6ff;
+  color: #1e40af;
+  border: 1.5px solid #93c5fd;
+}
+
+.alert-banner.error {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1.5px solid #fca5a5;
+}
+
+.alert-banner.warning {
+  background: #fffbeb;
+  color: #92400e;
+  border: 1.5px solid #fcd34d;
+}
+
+/* Sleek Circular Close "X" Button */
+.close-alert-btn {
+  background: rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: currentColor;
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+  line-height: 1;
+  outline: none;
+}
+
+.close-alert-btn:hover {
+  background: rgba(0, 0, 0, 0.15);
+  border-color: rgba(0, 0, 0, 0.25);
+  transform: rotate(90deg) scale(1.1);
+}
+
+.close-alert-btn:active {
+  transform: scale(0.92);
+}
+
+/* ---------------- 2. Incoming Duty Dispatch Alert ---------------- */
+.incoming-dispatch-section {
+  border: 2.5px solid #f59e0b;
+  border-radius: var(--radius-lg);
+  background: #fffdf5;
+  box-shadow: 0 6px 20px rgba(217, 119, 6, 0.18);
+  overflow: hidden;
+  animation: dispatch-enter 0.3s ease;
+}
+
+@keyframes dispatch-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.incoming-section-header {
+  background: linear-gradient(90deg, #d97706, #f59e0b);
+  color: #ffffff;
+  padding: 0.8rem 1.15rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-weight: 800;
+  font-size: var(--font-sm);
+  letter-spacing: 0.03em;
+}
+
+.pulsing-siren-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.45);
+  animation: siren-dot 1.1s infinite;
+}
+
+@keyframes siren-dot {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 0.6;
+  }
+}
+
+.incoming-requests-list {
+  padding: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.incoming-request-card {
+  background: #ffffff;
+  border: 1.5px solid #fde68a;
+  border-radius: var(--radius-md);
+  padding: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.95rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.request-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Indian Commercial Taxi License Plate (Yellow with Black Border) */
+.plate-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #fde047;
+  color: #000000;
+  border: 2px solid #ca8a04;
+  border-radius: 6px;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-weight: 900;
+  font-size: 1rem;
+  letter-spacing: 0.07em;
+  padding: 0.25rem 0.65rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.duty-type-pill {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  font-weight: 800;
+  font-size: var(--font-xs);
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-md);
+  text-transform: uppercase;
+}
+
+.request-car-title {
+  font-size: 1.15rem;
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+
+.car-model-text {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.request-details-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.65rem;
+  background: #f8fafc;
+  padding: 0.85rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+}
+
+@media (min-width: 600px) {
+  .request-details-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.req-detail-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: var(--font-sm);
+}
+
+.req-detail-col.full-width {
+  grid-column: 1 / -1;
+}
+
+.detail-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.detail-value {
+  color: var(--text-primary);
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.remarks-col {
+  background: #fffbeb;
+  padding: 0.5rem 0.65rem;
+  border-radius: 4px;
+  border: 1px solid #fef3c7;
+}
+
+.remarks-col .detail-value {
+  color: #92400e;
+}
+
+.request-action-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+.btn-accept-duty {
+  min-height: 52px;
+  background: #10b981;
+  color: #ffffff;
+  border: 2px solid #059669;
+  border-radius: var(--radius-md);
+  font-weight: 900;
+  font-size: 1.05rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+  transition: all 0.15s ease;
+}
+
+.btn-accept-duty:hover, .btn-accept-duty:active {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+.btn-decline-duty {
+  min-height: 52px;
+  background: #ffffff;
+  color: #dc2626;
+  border: 2px solid #fca5a5;
+  border-radius: var(--radius-md);
+  font-weight: 800;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-decline-duty:hover, .btn-decline-duty:active {
+  background: #fef2f2;
+  border-color: #dc2626;
+}
+
+/* ---------------- 3. Ongoing Active Duties ---------------- */
+.active-duties-section {
+  border: 2px solid #3b82f6;
+  border-radius: var(--radius-lg);
+  background: #f0f7ff;
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.12);
+  overflow: hidden;
+}
+
+.active-duties-header {
+  background: linear-gradient(90deg, #1d4ed8, #2563eb);
+  color: #ffffff;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 800;
+  font-size: var(--font-sm);
+}
+
+.active-duties-list {
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.active-duty-card {
+  background: #ffffff;
+  border: 1px solid #bfdbfe;
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.duty-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.duty-card-body {
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.duty-card-loc {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+.btn-complete-duty {
+  width: 100%;
+  min-height: 48px;
+  background: #10b981;
+  color: #ffffff;
+  border: 2px solid #059669;
+  border-radius: var(--radius-md);
+  font-weight: 800;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+  transition: all 0.15s ease;
+}
+
+.btn-complete-duty:hover, .btn-complete-duty:active {
+  background: #059669;
+}
+
+/* ---------------- 4. Fleet Section & Vehicle Cards ---------------- */
+.supplier-fleet-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.95rem;
+}
+
+.fleet-section-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  padding: 0 0.25rem;
+}
+
+.fleet-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.fleet-section-title h2 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.vehicles-count-pill {
+  font-size: 0.75rem;
+  font-weight: 800;
+  background: #e2e8f0;
+  color: #475569;
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-full);
+}
+
+.topbar-right-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.btn-add-vehicle-top {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.95rem;
+  background: var(--color-primary);
+  color: #ffffff;
+  border: 1.5px solid var(--color-primary);
+  border-radius: var(--radius-full);
+  font-size: var(--font-xs);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+}
+
+.btn-add-vehicle-top:hover {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.quick-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  padding: 0.45rem 0.85rem;
+  border-radius: var(--radius-full);
+  font-size: var(--font-xs);
+  font-weight: 700;
+  cursor: pointer;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  transition: all 0.15s ease;
+}
+
+.filter-btn:hover {
+  background: #f1f5f9;
+}
+
+.filter-btn.active {
+  background: var(--color-primary);
+  color: #ffffff;
+  border-color: var(--color-primary);
+}
+
+.filter-btn.available-filter {
+  color: #15803d;
+}
+
+.filter-btn.available-filter:hover {
+  background: #dcfce7 !important;
+  border-color: #22c55e !important;
+  color: #14532d !important;
+}
+
+.filter-btn.available-filter.active {
+  background: #16a34a !important;
+  border-color: #15803d !important;
+  color: #ffffff !important;
+}
+
+.filter-btn.available-filter.active:hover {
+  background: #15803d !important;
+  border-color: #166534 !important;
+  color: #ffffff !important;
+}
+
+.filter-btn.booked-filter {
+  color: #b91c1c;
+}
+
+.filter-btn.booked-filter:hover {
+  background: #fee2e2 !important;
+  border-color: #ef4444 !important;
+  color: #7f1d1d !important;
+}
+
+.filter-btn.booked-filter.active {
+  background: #dc2626 !important;
+  border-color: #b91c1c !important;
+  color: #ffffff !important;
+}
+
+.filter-btn.booked-filter.active:hover {
+  background: #b91c1c !important;
+  border-color: #991b1b !important;
+  color: #ffffff !important;
+}
+
+.fleet-search-box {
+  padding: 0 0.25rem;
+}
+
+.fleet-search-input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.55rem 0.95rem;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border-color);
+  font-size: var(--font-sm);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+/* Vehicle Cards Grid */
+.vehicle-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .vehicle-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .vehicle-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Single Vehicle Card */
+.vehicle-card {
+  background: var(--bg-surface);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.95rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.vehicle-card.card-available {
+  border-color: #86efac;
+  background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 42%);
+}
+
+.vehicle-card.card-booked {
+  border-color: #fca5a5;
+  background: linear-gradient(180deg, #fef2f2 0%, #ffffff 42%);
+}
+
+.vehicle-card.card-locked {
+  border-color: #e2e8f0;
+  background: #f8fafc;
+}
+
+.vehicle-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.vehicle-card-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.vehicle-card-name {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.vehicle-card-model {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* ---------------- THE TWO BUTTONS: BOOK & AVAILABLE ---------------- */
+.vehicle-two-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-top: 0.35rem;
+}
+
+.btn-state-available,
+.btn-state-booked {
+  min-height: 50px;
+  border-radius: var(--radius-md);
+  font-weight: 800;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 2px solid transparent;
+}
+
+.btn-state-available .dot-icon {
+  font-size: 0.95rem;
+  color: #10b981;
+}
+
+.btn-state-booked .dot-icon {
+  font-size: 0.95rem;
+  color: #ef4444;
+}
+
+/* Unselected State: Clean tinted clickable button */
+.btn-state-available {
+  background: #f0fdf4;
+  color: #166534;
+  border-color: #86efac;
+}
+
+.btn-state-available:hover:not(:disabled) {
+  background: #dcfce7 !important;
+  border-color: #22c55e !important;
+  color: #14532d !important;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.25);
+  transform: translateY(-1px);
+}
+
+.btn-state-booked {
+  background: #fef2f2;
+  color: #991b1b;
+  border-color: #fca5a5;
+}
+
+.btn-state-booked:hover:not(:disabled) {
+  background: #fee2e2 !important;
+  border-color: #ef4444 !important;
+  color: #7f1d1d !important;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+  transform: translateY(-1px);
+}
+
+/* Selected Active State: Filled vibrant color with checkmark */
+.btn-state-available.is-selected {
+  background: #16a34a;
+  color: #ffffff;
+  border-color: #15803d;
+  box-shadow: 0 4px 14px rgba(22, 163, 74, 0.35);
+}
+
+.btn-state-available.is-selected:hover:not(:disabled) {
+  background: #15803d !important;
+  border-color: #166534 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(21, 128, 61, 0.45);
+  transform: translateY(-1px);
+}
+
+.btn-state-available.is-selected .dot-icon {
+  color: #ffffff;
+}
+
+.btn-state-booked.is-selected {
+  background: #dc2626;
+  color: #ffffff;
+  border-color: #b91c1c;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);
+}
+
+.btn-state-booked.is-selected:hover:not(:disabled) {
+  background: #b91c1c !important;
+  border-color: #991b1b !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(185, 28, 28, 0.45);
+  transform: translateY(-1px);
+}
+
+.btn-state-booked.is-selected .dot-icon {
+  color: #ffffff;
+}
+
+.btn-state-available:disabled,
+.btn-state-booked:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Locked status banners */
+.locked-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.55rem;
+  border-radius: var(--radius-md);
+  font-size: var(--font-xs);
+  font-weight: 700;
+  text-align: center;
+}
+
+.locked-banner.request-locked {
+  background: #fefce8;
+  color: #854d0e;
+  border: 1px dashed #fde047;
+}
+
+.locked-banner.duty-locked {
+  background: #eff6ff;
+  color: #1e40af;
+  border: 1px dashed #bfdbfe;
+}
+
+/* Empty fleet card */
+.empty-fleet-card {
+  background: var(--bg-surface);
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+}
+
+.empty-fleet-card .empty-icon {
+  font-size: 2.75rem;
+}
+
+.empty-fleet-card h3 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.empty-fleet-card p {
+  font-size: var(--font-sm);
+  color: var(--text-muted);
+  max-width: 400px;
+  margin: 0;
+}
+
+/* ---------------- 5. Persistent Top Duty Notification Banner ---------------- */
+.supplier-top-duty-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+  width: 100%;
+}
+
+.top-duty-banner {
+  background: #ffffff;
+  border: 2px solid #ef4444;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 8px 24px -4px rgba(239, 68, 68, 0.22);
+  animation: topDutySlideDown 0.25s ease-out;
+}
+
+@keyframes topDutySlideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.top-duty-header {
+  background: linear-gradient(90deg, #dc2626 0%, #b91c1c 100%);
+  color: #ffffff;
+  padding: 0.75rem 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.top-duty-pulse-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.top-duty-pulsing-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.4);
+  animation: admin-dot-pulse 1.4s infinite;
+}
+
+.top-duty-headline {
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.top-duty-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.top-sound-toggle-btn {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #ffffff;
+  font-size: var(--font-xs);
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.top-sound-toggle-btn.active {
+  background: #f59e0b;
+  color: #0b132b;
+  border-color: #f59e0b;
+}
+
+.top-duty-content {
+  padding: 1.15rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  align-items: center;
+}
+
+@media (min-width: 768px) {
+  .top-duty-content {
+    grid-template-columns: minmax(180px, 1.2fr) minmax(220px, 2fr) auto;
+  }
+}
+
+.top-duty-car-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.top-duty-car-desc {
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.top-duty-trip-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  background: #f8fafc;
+  padding: 0.75rem 0.95rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+}
+
+.top-trip-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.top-trip-row strong {
+  color: var(--text-primary);
+}
+
+.top-duty-actions-col {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.btn-top-accept {
+  flex: 1;
+  min-width: 140px;
+  min-height: 46px;
+  background: #10b981;
+  color: #ffffff;
+  border: 2px solid #059669;
+  border-radius: var(--radius-md);
+  font-weight: 800;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  transition: all 0.15s ease;
+}
+
+.btn-top-accept:hover {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+.btn-top-decline {
+  flex: 1;
+  min-width: 100px;
+  min-height: 46px;
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1.5px solid #fecaca;
+  border-radius: var(--radius-md);
+  font-weight: 800;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-top-decline:hover {
+  background: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
+}
+
+/* ==========================================================================
+   SUPPLIER MOBILE SCREEN RESPONSIVE & HIGH-DENSITY POLISH (< 768px & < 480px)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .supplier-home-container {
+    padding: 0.25rem 0.35rem 1.25rem;
+    gap: 0.65rem;
+  }
+
+  .supplier-header-card {
+    padding: 0.65rem 0.75rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .supplier-controls-row {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .vehicle-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+  }
+
+  .vehicle-card {
+    padding: 0.85rem;
+    gap: 0.65rem;
+  }
+
+  .vehicle-two-buttons {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .btn-state-available,
+  .btn-state-booked {
+    min-height: 44px;
+    font-size: 0.85rem;
+    padding: 0.45rem;
+  }
+
+  .active-duty-card {
+    padding: 0.75rem;
+  }
+
+  .fleet-section-topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .topbar-right-actions {
+    width: 100%;
+    justify-content: space-between;
+    gap: 0.4rem;
+  }
+
+  .quick-filter-row {
+    width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+  }
+
+  .quick-filter-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filter-btn {
+    white-space: nowrap;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.75rem;
+  }
+}
+
+
