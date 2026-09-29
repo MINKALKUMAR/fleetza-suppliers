@@ -38,4 +38,26 @@ axiosClient.interceptors.response.use(
   }
 );
 
+// True when the backend could not be reached or is down (network error, gateway error, or HTML fallback page)
+export const isServerUnavailableError = (error) => {
+  if (!error) return false;
+  if (!error.response) return true;
+  const { status, headers } = error.response;
+  if ([502, 503, 504].includes(status)) return true;
+  return String(headers?.['content-type'] || '').includes('text/html');
+};
+
+export const SERVER_UNAVAILABLE_MESSAGE =
+  'The Fleetza server is not responding right now. Please try again in a few minutes or contact the admin.';
+
+// Pings the backend health endpoint; resolves to true when the API is up
+export const checkServerHealth = async () => {
+  try {
+    const response = await axiosClient.get('/health', { timeout: 15000 });
+    return !String(response.headers?.['content-type'] || '').includes('text/html');
+  } catch (error) {
+    return !isServerUnavailableError(error);
+  }
+};
+
 export default axiosClient;

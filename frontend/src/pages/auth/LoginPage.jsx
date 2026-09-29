@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
+import { checkServerHealth, SERVER_UNAVAILABLE_MESSAGE } from '../../api/axiosClient';
 import { TaxiIcon, AlertTriangleIcon, LockIcon, UserIcon } from '../../components/common/Icons';
 
 const LoginPage = () => {
@@ -18,6 +19,19 @@ const LoginPage = () => {
   const location = useLocation();
 
   const isSessionExpired = location.search.includes('session_expired=true');
+
+  // 'checking' | 'online' | 'offline'
+  const [serverStatus, setServerStatus] = useState('checking');
+
+  const runHealthCheck = useCallback(async () => {
+    setServerStatus('checking');
+    const isUp = await checkServerHealth();
+    setServerStatus(isUp ? 'online' : 'offline');
+  }, []);
+
+  useEffect(() => {
+    runHealthCheck();
+  }, [runHealthCheck]);
 
   const performLogin = async (userToLogin, passToLogin) => {
     setError('');
@@ -77,7 +91,23 @@ const LoginPage = () => {
         </div>
       )}
 
-      {error && (
+      {serverStatus === 'offline' && (
+        <div className="alert-banner error" style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
+          <AlertTriangleIcon size={16} />
+          <span style={{ flex: 1 }}>{SERVER_UNAVAILABLE_MESSAGE}</span>
+          <button type="button" className="demo-btn" onClick={runHealthCheck} style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem' }}>
+            Retry
+          </button>
+        </div>
+      )}
+
+      {serverStatus === 'checking' && (
+        <div className="alert-banner info" style={{ marginBottom: '1rem' }}>
+          Connecting to the Fleetza server…
+        </div>
+      )}
+
+      {error && error !== SERVER_UNAVAILABLE_MESSAGE && (
         <div className="alert-banner error" style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
           <AlertTriangleIcon size={16} />
           <span>{error}</span>
