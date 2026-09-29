@@ -78,12 +78,6 @@ const LoginPage = () => {
     await performLogin(username, password);
   };
 
-  const handleQuickDemo = (userVal, passVal) => {
-    setUsername(userVal);
-    setPassword(passVal);
-    performLogin(userVal, passVal);
-  };
-
   return (
     <div className="auth-card">
       <div className="auth-header">
@@ -157,37 +151,6 @@ const LoginPage = () => {
           Sign In
         </Button>
       </form>
-
-      {/* Simple 1-Click Quick Demo Logins */}
-      <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid #e2e8f0' }}>
-        <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', textAlign: 'center', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-          Instant Demo Logins
-        </span>
-
-        <div className="demo-btn-group" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
-          <button
-            type="button"
-            className="demo-btn"
-            disabled={isSubmitting}
-            onClick={() => handleQuickDemo('admin', 'Admin@12345')}
-            style={{ padding: '0.5rem', textAlign: 'center' }}
-          >
-            <strong style={{ display: 'block', fontSize: '0.82rem', color: '#1e40af' }}>👑 Admin</strong>
-            <span style={{ fontSize: '0.68rem', color: '#64748b' }}>Operations Access</span>
-          </button>
-
-          <button
-            type="button"
-            className="demo-btn"
-            disabled={isSubmitting}
-            onClick={() => handleQuickDemo('supplier_demo', 'Supplier@12345')}
-            style={{ padding: '0.5rem', textAlign: 'center' }}
-          >
-            <strong style={{ display: 'block', fontSize: '0.82rem', color: '#047857' }}>🚕 Supplier</strong>
-            <span style={{ fontSize: '0.68rem', color: '#64748b' }}>Rajinder · Chandigarh</span>
-          </button>
-        </div>
-      </div>
     </div>
   );
 };
