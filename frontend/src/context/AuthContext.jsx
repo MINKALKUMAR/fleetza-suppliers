@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { authApi } from '../api/authApi';
+import { isServerUnavailableError, SERVER_UNAVAILABLE_MESSAGE } from '../api/axiosClient';
 import { supplierApi } from '../api/supplierApi';
 import { vehicleApi } from '../api/vehicleApi';
 import { bookingApi } from '../api/bookingApi';
@@ -233,7 +234,9 @@ export const AuthProvider = ({ children }) => {
       return { success: false, message: res.message || 'Login failed' };
     } catch (err) {
       let message = 'Login failed. Please verify your credentials.';
-      if (err.response?.data?.message) {
+      if (isServerUnavailableError(err)) {
+        message = SERVER_UNAVAILABLE_MESSAGE;
+      } else if (err.response?.data?.message) {
         message = err.response.data.message;
       } else if (err.message) {
         message = err.message;
