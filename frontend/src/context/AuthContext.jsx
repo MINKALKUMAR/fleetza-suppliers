@@ -232,6 +232,13 @@ export const AuthProvider = ({ children }) => {
       }
       return { success: false, message: res.message || 'Login failed' };
     } catch (err) {
+      if (!err.response || err.response.status >= 500) {
+        return {
+          success: false,
+          serverUnavailable: true,
+          message: 'The Fleetza server is not responding. Please try again shortly.'
+        };
+      }
       let message = 'Login failed. Please verify your credentials.';
       if (err.response?.data?.message) {
         message = err.response.data.message;

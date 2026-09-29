@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import axiosClient from '../../api/axiosClient';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
 import { TaxiIcon, AlertTriangleIcon, LockIcon, UserIcon } from '../../components/common/Icons';
@@ -11,6 +12,8 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCheckingServer, setIsCheckingServer] = useState(true);
+  const [serverUnavailable, setServerUnavailable] = useState(false);
 
   const { login } = useAuth();
   const { showToast } = useToast();
@@ -18,6 +21,22 @@ const LoginPage = () => {
   const location = useLocation();
 
   const isSessionExpired = location.search.includes('session_expired=true');
+
+  const checkServer = useCallback(async () => {
+    setIsCheckingServer(true);
+    try {
+      await axiosClient.get('/health', { timeout: 10000 });
+      setServerUnavailable(false);
+    } catch {
+      setServerUnavailable(true);
+    } finally {
+      setIsCheckingServer(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    checkServer();
+  }, [checkServer]);
 
   const performLogin = async (userToLogin, passToLogin) => {
     setError('');
@@ -41,8 +60,12 @@ const LoginPage = () => {
         navigate('/admin/dashboard', { replace: true });
       }
     } else {
-      setError(result.message || 'Invalid username or password');
-      showToast(result.message || 'Login failed', 'error');
+      const message = (serverUnavailable || result.serverUnavailable)
+        ? 'The Fleetza server is not responding. Please try again shortly.'
+        : result.message || 'Invalid username or password';
+      if (result.serverUnavailable) setServerUnavailable(true);
+      setError(message);
+      showToast(message, 'error');
     }
   };
 
@@ -74,6 +97,23 @@ const LoginPage = () => {
       {isSessionExpired && (
         <div className="alert-banner info" style={{ marginBottom: '1rem' }}>
           Your session has expired. Please log in again.
+        </div>
+      )}
+
+      {(isCheckingServer || serverUnavailable) && (
+        <div
+          className={`alert-banner ${serverUnavailable ? 'error' : 'info'}`}
+          role="status"
+          style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}
+        >
+          <span>
+            {isCheckingServer ? 'Connecting to the Fleetza server…' : 'The Fleetza server is not responding. Login will not work until it is back online.'}
+          </span>
+          {serverUnavailable && (
+            <button type="button" onClick={checkServer} style={{ flexShrink: 0 }}>
+              Retry
+            </button>
+          )}
         </div>
       )}
 
