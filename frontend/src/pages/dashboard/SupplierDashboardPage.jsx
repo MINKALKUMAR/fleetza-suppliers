@@ -202,24 +202,6 @@ const SupplierDashboardPage = () => {
 
           <button
             type="button"
-            className="ctrl-btn test-sound-btn"
-            onClick={() => {
-              playSupplierDutyChime();
-              showToast('Playing duty dispatch chime alert...', 'info');
-            }}
-            title="Test duty dispatch chime on this mobile"
-            style={{
-              background: 'rgba(245, 158, 11, 0.2)',
-              border: '1px solid rgba(245, 158, 11, 0.45)',
-              color: '#fef08a'
-            }}
-          >
-            <VolumeOnIcon size={14} color="#f59e0b" />
-            <span>Test Sound</span>
-          </button>
-
-          <button
-            type="button"
             className="ctrl-btn refresh-btn"
             onClick={refreshAllData}
             title="Refresh status now"

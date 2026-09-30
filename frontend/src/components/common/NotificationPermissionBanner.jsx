@@ -33,8 +33,8 @@ const NotificationPermissionBanner = () => {
     }
   }, []);
 
-  // Only relevant for suppliers
-  if (!isSupplier || permissionState === 'granted' || dismissed) {
+  // Only relevant for suppliers when notification permission is not yet granted
+  if (!isSupplier || permissionState === 'granted') {
     return null;
   }
 
@@ -46,98 +46,88 @@ const NotificationPermissionBanner = () => {
     playSupplierDutyChime();
   };
 
-  const handleDismiss = () => {
-    setDismissed(true);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('fleetza_notif_banner_dismissed', 'true');
-    }
-  };
-
   return (
     <div
       style={{
-        background: 'linear-gradient(135deg, #1e3a8a 0%, #1e1b4b 100%)',
-        color: '#ffffff',
-        borderRadius: 'var(--radius-md, 8px)',
-        padding: '0.75rem 1rem',
-        marginBottom: '0.85rem',
-        border: '1.5px solid #3b82f6',
-        boxShadow: '0 4px 14px rgba(30, 58, 138, 0.35)',
+        position: 'fixed',
+        inset: 0,
+        backgroundColor: 'rgba(15, 23, 42, 0.85)',
+        zIndex: 9999,
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '0.65rem'
+        justifyContent: 'center',
+        padding: '1rem',
+        backdropFilter: 'blur(4px)'
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flex: 1, minWidth: '240px' }}>
+      <div
+        style={{
+          background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)',
+          color: '#ffffff',
+          borderRadius: '16px',
+          padding: '1.5rem',
+          maxWidth: '440px',
+          width: '100%',
+          border: '1.5px solid #3b82f6',
+          boxShadow: '0 20px 35px -5px rgba(0, 0, 0, 0.7)',
+          textAlign: 'center'
+        }}
+      >
         <div
           style={{
-            width: '38px',
-            height: '38px',
+            width: '54px',
+            height: '54px',
             borderRadius: '50%',
-            background: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
+            background: 'linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            flexShrink: 0,
-            boxShadow: '0 2px 8px rgba(245, 158, 11, 0.4)'
+            margin: '0 auto 1rem',
+            boxShadow: '0 4px 14px rgba(245, 158, 11, 0.5)'
           }}
         >
-          <BellIcon size={18} color="#ffffff" />
+          <BellIcon size={26} color="#ffffff" />
         </div>
-        <div>
-          <strong style={{ fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: 4, color: '#fde047' }}>
-            <span>Enable Mobile Notifications & Sound Alerts</span>
-          </strong>
-          <p style={{ margin: '0.15rem 0 0', fontSize: '0.74rem', color: '#cbd5e1', lineHeight: 1.35 }}>
-            Allow notifications and audio so you get instant sound alerts and vibration when duty is dispatched, even when your phone screen is off or app is closed.
-          </p>
-        </div>
-      </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexShrink: 0 }}>
+        <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: '0 0 0.5rem', color: '#ffffff' }}>
+          Enable Duty Sound & Notifications
+        </h3>
+
+        <p style={{ margin: '0 0 1.25rem', fontSize: '0.85rem', color: '#cbd5e1', lineHeight: 1.5 }}>
+          To receive duty requests with loud sound alerts and vibration when your app is in the background or screen is off, please tap <strong>Allow</strong> below.
+        </p>
+
         <button
           type="button"
           onClick={handleEnableAlerts}
           style={{
-            background: '#10b981',
+            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
             color: '#ffffff',
             border: 'none',
-            borderRadius: '6px',
-            padding: '0.45rem 0.85rem',
-            fontSize: '0.78rem',
+            borderRadius: '8px',
+            padding: '0.75rem 1.5rem',
+            fontSize: '0.95rem',
             fontWeight: 800,
             cursor: 'pointer',
-            display: 'inline-flex',
+            width: '100%',
+            display: 'flex',
             alignItems: 'center',
-            gap: 5,
-            boxShadow: '0 2px 6px rgba(16, 185, 129, 0.3)'
+            justifyContent: 'center',
+            gap: 8,
+            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4)'
           }}
         >
-          {tested ? <CheckIcon size={14} /> : <VolumeOnIcon size={14} />}
-          <span>{tested ? 'Alerts Activated!' : 'Allow Sound & Alerts'}</span>
+          <VolumeOnIcon size={18} />
+          <span>ALLOW SOUND & NOTIFICATIONS</span>
         </button>
 
-        <button
-          type="button"
-          onClick={handleDismiss}
-          style={{
-            background: 'transparent',
-            color: '#94a3b8',
-            border: '1px solid #475569',
-            borderRadius: '6px',
-            padding: '0.45rem 0.65rem',
-            fontSize: '0.74rem',
-            fontWeight: 600,
-            cursor: 'pointer'
-          }}
-        >
-          Later
-        </button>
+        <div style={{ marginTop: '0.85rem', fontSize: '0.72rem', color: '#94a3b8' }}>
+          🔒 Required once by Fleetza to ring mobile speaker on incoming duties
+        </div>
       </div>
     </div>
   );
 };
 
 export default NotificationPermissionBanner;
+
