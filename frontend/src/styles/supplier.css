@@ -1196,4 +1196,40 @@
   }
 }
 
+@media (max-width: 480px) {
+  .supplier-controls-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.35rem;
+    width: 100%;
+  }
+
+  .supplier-controls-row .ctrl-btn {
+    justify-content: center;
+    width: 100%;
+    min-height: 38px;
+    font-size: 0.74rem;
+  }
+
+  .supplier-profile-row {
+    width: 100%;
+  }
+
+  .supplier-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 0.95rem;
+  }
+
+  .supplier-title {
+    font-size: 0.95rem;
+  }
+
+  .vehicle-two-buttons button {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.2rem;
+  }
+}
+
+
 

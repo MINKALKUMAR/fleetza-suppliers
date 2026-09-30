@@ -4,6 +4,7 @@ import Navbar from '../components/common/Navbar';
 import Sidebar from '../components/common/Sidebar';
 import SupplierDutyTopBanner from '../components/common/SupplierDutyTopBanner';
 import AdminLiveDutyAlerts from '../components/common/AdminLiveDutyAlerts';
+import NotificationPermissionBanner from '../components/common/NotificationPermissionBanner';
 
 const MainLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -14,6 +15,7 @@ const MainLayout = () => {
       <div className="app-main">
         <Navbar toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
         <main className="app-content">
+          <NotificationPermissionBanner />
           <SupplierDutyTopBanner />
           <AdminLiveDutyAlerts />
           <Outlet />

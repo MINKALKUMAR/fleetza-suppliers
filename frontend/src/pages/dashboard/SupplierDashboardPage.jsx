@@ -16,7 +16,8 @@ import {
   NavigationIcon,
   SearchIcon,
   PlusIcon,
-  ClockIcon
+  ClockIcon,
+  VolumeOnIcon
 } from '../../components/common/Icons';
 
 const SupplierDashboardPage = () => {
@@ -29,7 +30,8 @@ const SupplierDashboardPage = () => {
     completeBookingDuty,
     setVehicleStatus,
     refreshAllData,
-    createVehicle
+    createVehicle,
+    playSupplierDutyChime
   } = useAuth();
   const { showToast } = useToast();
 
@@ -197,6 +199,24 @@ const SupplierDashboardPage = () => {
             <WhatsAppIcon size={14} color="#ffffff" />
             <span>Admin Desk</span>
           </a>
+
+          <button
+            type="button"
+            className="ctrl-btn test-sound-btn"
+            onClick={() => {
+              playSupplierDutyChime();
+              showToast('Playing duty dispatch chime alert...', 'info');
+            }}
+            title="Test duty dispatch chime on this mobile"
+            style={{
+              background: 'rgba(245, 158, 11, 0.2)',
+              border: '1px solid rgba(245, 158, 11, 0.45)',
+              color: '#fef08a'
+            }}
+          >
+            <VolumeOnIcon size={14} color="#f59e0b" />
+            <span>Test Sound</span>
+          </button>
 
           <button
             type="button"
