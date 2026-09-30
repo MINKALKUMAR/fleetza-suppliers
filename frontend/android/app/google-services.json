@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "802488623560",
+    "project_id": "fleetza-4d70e",
+    "storage_bucket": "fleetza-4d70e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:802488623560:android:e31623c0fbc3a08361e0fd",
+        "android_client_info": {
+          "package_name": "com.fleetza.suppliers"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAekG52RwvrAJ0oSmixQH9h5x-wCN9qr1o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

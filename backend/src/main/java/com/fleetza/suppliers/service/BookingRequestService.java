@@ -7,12 +7,16 @@ import com.fleetza.suppliers.exception.BadRequestException;
 import com.fleetza.suppliers.exception.ResourceNotFoundException;
 import com.fleetza.suppliers.repository.BookingRequestRepository;
 import com.fleetza.suppliers.repository.VehicleRepository;
+import com.fleetza.suppliers.entity.User;
+import com.fleetza.suppliers.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class BookingRequestService {
@@ -25,6 +29,12 @@ public class BookingRequestService {
 
     @Autowired
     private NotificationService notificationService;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private FcmPushService fcmPushService;
 
     @Transactional(readOnly = true)
     public List<BookingRequest> getBookingRequests(Long supplierId) {
@@ -82,6 +92,29 @@ public class BookingRequestService {
                 "A booking request was sent for " + vehicle.getName() + " (" + vehicle.getNumber() + ").",
                 saved.getId()
         );
+
+        // Send High-Priority Instant Waking Cloud Push via Firebase (FCM)
+        try {
+            User supplierUser = userRepository.findById(vehicle.getSupplierId()).orElse(null);
+            if (supplierUser != null && supplierUser.getFcmToken() != null && !supplierUser.getFcmToken().isBlank()) {
+                Map<String, String> data = new HashMap<>();
+                data.put("bookingId", String.valueOf(saved.getId()));
+                data.put("dutyType", saved.getDutyType() != null ? saved.getDutyType() : "8/80");
+                data.put("pickupDate", saved.getPickupDate() != null ? saved.getPickupDate() : "");
+                data.put("pickupTime", saved.getPickupTime() != null ? saved.getPickupTime() : "");
+                data.put("vehicleNumber", vehicle.getNumber());
+                data.put("pickupLocation", saved.getPickupLocation() != null ? saved.getPickupLocation() : "");
+
+                fcmPushService.sendDutyDispatchPush(
+                        supplierUser.getFcmToken(),
+                        "🚕 Urgent Duty Dispatch!",
+                        "New Duty: " + saved.getDutyType() + " for " + vehicle.getName() + " (" + vehicle.getNumber() + "). Tap to accept!",
+                        data
+                );
+            }
+        } catch (Exception e) {
+            // Push notification failure should not block transaction
+        }
 
         return saved;
     }

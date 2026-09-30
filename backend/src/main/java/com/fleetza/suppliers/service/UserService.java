@@ -254,6 +254,15 @@ public class UserService {
         return response;
     }
 
+    @Transactional
+    public void updateFcmToken(Long userId, String fcmToken) {
+        if (userId == null) return;
+        userRepository.findById(userId).ifPresent(user -> {
+            user.setFcmToken(fcmToken != null ? fcmToken.trim() : null);
+            userRepository.save(user);
+        });
+    }
+
     private String blankToNull(String value) {
         return value == null || value.isBlank() ? null : value.trim();
     }

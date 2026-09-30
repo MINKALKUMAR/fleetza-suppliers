@@ -221,9 +221,67 @@ if (typeof window !== 'undefined') {
 export const requestNotificationPermission = async () => {
   if (typeof window === 'undefined') return 'denied';
   
-  // Also proactively unlock AudioContext on this call
+  // Proactively unlock AudioContext on this call
   unlockAudioContext();
 
+  // 6A. Native Capacitor Android FCM Push Registration
+  try {
+    const { PushNotifications } = await import('@capacitor/push-notifications');
+    if (PushNotifications) {
+      const permStatus = await PushNotifications.checkPermissions();
+      let receive = permStatus.receive;
+      if (receive === 'prompt' || receive === 'prompt-with-rationale') {
+        const req = await PushNotifications.requestPermissions();
+        receive = req.receive;
+      }
+
+      if (receive === 'granted') {
+        // Create high-priority duty notification channel on Android
+        try {
+          await PushNotifications.createChannel({
+            id: 'fleetza_duty_channel',
+            name: 'Fleetza Duty Dispatches',
+            description: 'High-priority urgent alerts for taxi duty requests',
+            importance: 5, // IMPORTANCE_HIGH
+            visibility: 1, // VISIBILITY_PUBLIC
+            vibration: true,
+            lights: true,
+            lightColor: '#f59e0b'
+          });
+        } catch {}
+
+        await PushNotifications.register();
+
+        PushNotifications.removeAllListeners();
+
+        PushNotifications.addListener('registration', async (token) => {
+          if (token && token.value) {
+            try {
+              const { authApi } = await import('../api/authApi');
+              await authApi.updateFcmToken(token.value);
+            } catch {}
+          }
+        });
+
+        PushNotifications.addListener('pushNotificationReceived', (notification) => {
+          // Play continuous melodic chime when notification arrives
+          playSupplierDutyChime();
+        });
+
+        PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
+          if (typeof window !== 'undefined') {
+            window.location.href = '/supplier/dashboard';
+          }
+        });
+
+        return 'granted';
+      }
+    }
+  } catch (nativeErr) {
+    // Falls back to Web Notifications if running on standard web browser
+  }
+
+  // 6B. Standard Web Browser Notifications Fallback
   if ('Notification' in window) {
     if (Notification.permission === 'default') {
       try {

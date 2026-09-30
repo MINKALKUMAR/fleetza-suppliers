@@ -56,4 +56,14 @@ public class AuthController {
         }
         return ResponseEntity.ok(ApiResponse.success("Logged out successfully"));
     }
+
+    @PostMapping("/fcm-token")
+    public ResponseEntity<ApiResponse<Void>> updateFcmToken(
+            @AuthenticationPrincipal UserPrincipal currentUser,
+            @RequestBody java.util.Map<String, String> body) {
+        if (currentUser != null && body != null && body.containsKey("token")) {
+            userService.updateFcmToken(currentUser.getId(), body.get("token"));
+        }
+        return ResponseEntity.ok(ApiResponse.success("FCM token updated successfully"));
+    }
 }
