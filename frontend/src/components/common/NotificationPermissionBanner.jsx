@@ -33,17 +33,30 @@ const NotificationPermissionBanner = () => {
     }
   }, []);
 
-  // Only relevant for suppliers when notification permission is not yet granted
-  if (!isSupplier || permissionState === 'granted') {
+  // Hide modal once granted or dismissed in this session
+  if (!isSupplier || permissionState === 'granted' || dismissed) {
     return null;
   }
 
   const handleEnableAlerts = async () => {
-    unlockAudioContext();
+    try {
+      unlockAudioContext();
+      playSupplierDutyChime();
+    } catch {}
+
     const result = await requestNotificationPermission();
     setPermissionState(result);
-    setTested(true);
-    playSupplierDutyChime();
+    setDismissed(true);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('fleetza_notif_banner_dismissed', 'true');
+    }
+  };
+
+  const handleClose = () => {
+    setDismissed(true);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('fleetza_notif_banner_dismissed', 'true');
+    }
   };
 
   return (
@@ -70,9 +83,33 @@ const NotificationPermissionBanner = () => {
           width: '100%',
           border: '1.5px solid #3b82f6',
           boxShadow: '0 20px 35px -5px rgba(0, 0, 0, 0.7)',
-          textAlign: 'center'
+          textAlign: 'center',
+          position: 'relative'
         }}
       >
+        <button
+          type="button"
+          onClick={handleClose}
+          style={{
+            position: 'absolute',
+            top: 14,
+            right: 14,
+            background: 'rgba(255, 255, 255, 0.1)',
+            border: 'none',
+            color: '#94a3b8',
+            borderRadius: '50%',
+            width: '28px',
+            height: '28px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer'
+          }}
+          aria-label="Close"
+        >
+          ✕
+        </button>
+
         <div
           style={{
             width: '54px',
