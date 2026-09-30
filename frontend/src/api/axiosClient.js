@@ -1,6 +1,18 @@
 import axios from 'axios';
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+// Production Railway Backend URL for Android App & native wrappers
+const RAILWAY_BACKEND_URL = 'https://fleetza-suppliers-production.up.railway.app/api';
+
+// Check if running inside native Android / Capacitor container or standard web
+const isCapacitorOrNative =
+  (typeof window !== 'undefined' && (
+    window.location.protocol === 'capacitor:' ||
+    window.location.protocol === 'ionic:' ||
+    window.location.hostname === 'localhost' && window.location.port === '' ||
+    Boolean(window.Capacitor?.isNativePlatform && window.Capacitor.isNativePlatform())
+  ));
+
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || (isCapacitorOrNative ? RAILWAY_BACKEND_URL : '/api');
 
 const axiosClient = axios.create({
   baseURL: apiBaseUrl,
