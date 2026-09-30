@@ -219,13 +219,23 @@ if (typeof window !== 'undefined') {
 
 // 6. System Notification Permissions & Dispatch
 export const requestNotificationPermission = async () => {
-  if (typeof window !== 'undefined' && 'Notification' in window) {
+  if (typeof window === 'undefined') return 'denied';
+  
+  // Also proactively unlock AudioContext on this call
+  unlockAudioContext();
+
+  if ('Notification' in window) {
     if (Notification.permission === 'default') {
       try {
-        await Notification.requestPermission();
-      } catch {}
+        const result = await Notification.requestPermission();
+        return result;
+      } catch {
+        return Notification.permission;
+      }
     }
+    return Notification.permission;
   }
+  return 'unsupported';
 };
 
 export const showDutySystemNotification = (requestData = {}) => {
@@ -237,15 +247,40 @@ export const showDutySystemNotification = (requestData = {}) => {
     ? `Duty: ${requestData.dutyType} | Date: ${requestData.pickupDate || 'Today'} ${requestData.pickupTime || ''} | Tap to view & respond`
     : 'New duty assigned to your vehicle! Review details in your Fleetza portal.';
 
-  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-    try {
-      navigator.serviceWorker.controller.postMessage({
-        type: 'DUTY_ALERT',
-        title,
-        body
-      });
-      return;
-    } catch {}
+  // Attempt to deliver via Service Worker for background persistence on mobile
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.ready.then((reg) => {
+      try {
+        reg.showNotification(title, {
+          body,
+          icon: '/pwa-icon.svg',
+          badge: '/pwa-icon.svg',
+          vibrate: [500, 200, 500, 200, 500],
+          data: { url: '/supplier/dashboard' },
+          requireInteraction: true,
+          tag: 'fleetza-duty-alert',
+          renotify: true
+        });
+      } catch (e) {
+        // Fallback to postMessage
+        if (reg.active) {
+          reg.active.postMessage({ type: 'DUTY_ALERT', title, body });
+        }
+      }
+    }).catch(() => {
+      try {
+        new Notification(title, {
+          body,
+          icon: '/pwa-icon.svg',
+          badge: '/pwa-icon.svg',
+          vibrate: [500, 200, 500, 200, 500],
+          requireInteraction: true,
+          tag: 'fleetza-duty-alert',
+          renotify: true
+        });
+      } catch {}
+    });
+    return;
   }
 
   try {
@@ -253,9 +288,9 @@ export const showDutySystemNotification = (requestData = {}) => {
       body,
       icon: '/pwa-icon.svg',
       badge: '/pwa-icon.svg',
-      vibrate: [150, 100, 150],
-      requireInteraction: false,
-      tag: 'fleetza-duty-chime',
+      vibrate: [500, 200, 500, 200, 500],
+      requireInteraction: true,
+      tag: 'fleetza-duty-alert',
       renotify: true
     });
   } catch {}

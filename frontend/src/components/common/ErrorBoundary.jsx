@@ -59,9 +59,27 @@ class ErrorBoundary extends React.Component {
             <h2 style={{ fontSize: '1.4rem', fontWeight: 700, margin: '0 0 0.5rem' }}>
               Something went wrong
             </h2>
-            <p style={{ color: '#94a3b8', fontSize: '0.9rem', margin: '0 0 1.5rem', lineHeight: 1.5 }}>
+            <p style={{ color: '#94a3b8', fontSize: '0.9rem', margin: '0 0 1.25rem', lineHeight: 1.5 }}>
               The portal encountered an unexpected display issue. Please reload to restore your session.
             </p>
+            {this.state.error?.message && (
+              <div style={{
+                background: '#0f172a',
+                border: '1px solid #334155',
+                borderRadius: '6px',
+                padding: '0.5rem 0.75rem',
+                margin: '0 0 1.25rem',
+                fontSize: '0.75rem',
+                color: '#f87171',
+                textAlign: 'left',
+                maxHeight: '80px',
+                overflowY: 'auto',
+                fontFamily: 'monospace',
+                wordBreak: 'break-all'
+              }}>
+                {this.state.error.message}
+              </div>
+            )}
             <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
               <button
                 type="button"

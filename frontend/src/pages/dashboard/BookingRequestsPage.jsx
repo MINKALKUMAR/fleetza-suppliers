@@ -16,6 +16,7 @@ import {
   SearchIcon,
   CheckCircleIcon,
   XCircleIcon,
+  XIcon,
   AlertTriangleIcon
 } from '../../components/common/Icons';
 
@@ -43,8 +44,9 @@ const emptyFormState = () => ({
 });
 
 const BookingRequestsPage = () => {
-  const { vehicles, suppliers, cities, bookingRequests: requests, createBookingRequest } = useAuth();
+  const { vehicles, suppliers, cities, bookingRequests: requests, createBookingRequest, setBookingRequestStatus } = useAuth();
   const { showToast } = useToast();
+  const [cancellingId, setCancellingId] = useState(null);
 
   const cityNames = useMemo(() => {
     return (cities || []).map((c) => (typeof c === 'string' ? c : c.name)).filter(Boolean);
@@ -207,8 +209,29 @@ const BookingRequestsPage = () => {
     }
   };
 
+  const handleCancelRequest = async (request, vehicle) => {
+    const carIdentifier = vehicle?.number ? `${vehicle.number} (${vehicle.name || 'Car'})` : 'this vehicle';
+    const confirmed = window.confirm(`Are you sure you want to cancel and remove this duty request for ${carIdentifier}? The vehicle will be immediately freed back to Available.`);
+    if (!confirmed) return;
+
+    try {
+      setCancellingId(request.id);
+      const res = await setBookingRequestStatus(request.id, 'DECLINED');
+      if (res && res.success) {
+        showToast(`Duty request for ${carIdentifier} cancelled and vehicle freed!`, 'info');
+      } else {
+        showToast(res?.message || 'Failed to cancel duty request', 'error');
+      }
+    } catch (err) {
+      showToast('Error cancelling duty request', 'error');
+    } finally {
+      setCancellingId(null);
+    }
+  };
+
   // Active bookings list
-  const activeRequests = requests.filter((r) => {
+  const activeRequests = (requests || []).filter((r) => {
+    if (!r) return false;
     const isLive = r.status === 'REQUESTED' || r.status === 'CONFIRMED';
     return isLive && (statusFilter === 'ALL' || r.status === statusFilter);
   });
@@ -718,6 +741,19 @@ const BookingRequestsPage = () => {
                         <span>Chat</span>
                       </a>
                     )}
+
+                    {/* Admin Cut / Cancel Duty Request Button */}
+                    <button
+                      type="button"
+                      onClick={() => handleCancelRequest(request, vehicle)}
+                      disabled={cancellingId === request.id}
+                      title="Cancel and remove this duty request (frees vehicle back to Available)"
+                      className="dispatch-cancel-btn"
+                      aria-label="Cancel duty request"
+                    >
+                      <XIcon size={13} color="#ef4444" />
+                      <span>{cancellingId === request.id ? 'Cutting...' : 'Cut'}</span>
+                    </button>
                   </div>
                 </div>
               );

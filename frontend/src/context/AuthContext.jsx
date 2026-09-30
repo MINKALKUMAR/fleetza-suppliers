@@ -9,6 +9,7 @@ import { vehicleGroupApi, DEFAULT_VEHICLE_GROUPS } from '../api/vehicleGroupApi'
 import {
   requestNotificationPermission,
   showDutySystemNotification,
+  startSupplierDutyAlert,
   stopNotificationSound,
   playNotificationChime,
   playSupplierDutyChime
@@ -105,12 +106,15 @@ export const AuthProvider = ({ children }) => {
             );
             if (pending.length > 0) {
               const latest = pending[0];
-              showDutySystemNotification({
+              startSupplierDutyAlert({
                 dutyType: latest.dutyType,
                 pickupDate: latest.pickupDate,
                 pickupTime: latest.pickupTime,
-                vehicleNumber: latest.vehicleNumber
-              });
+                vehicleNumber: latest.vehicleNumber,
+                location: latest.pickupLocation
+              }, 3000);
+            } else {
+              stopNotificationSound();
             }
           }
         }
