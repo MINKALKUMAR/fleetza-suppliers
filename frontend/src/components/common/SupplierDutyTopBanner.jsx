@@ -16,7 +16,8 @@ import {
   ClockIcon,
   MapPinIcon,
   VolumeOnIcon,
-  VolumeOffIcon
+  VolumeOffIcon,
+  UserIcon
 } from './Icons';
 
 const SupplierDutyTopBanner = () => {
