@@ -47,7 +47,10 @@ dist-ssr/
 *.suo
 *.ntvs*
 *.njsproj
-*.sln
-*.sw?
-.DS_Store
-Thumbs.db
+# Android
+frontend/android/app/build/
+frontend/android/.gradle/
+frontend/android/build/
+*.apk
+*.aab
+

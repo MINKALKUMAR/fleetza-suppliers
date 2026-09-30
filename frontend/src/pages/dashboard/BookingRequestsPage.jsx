@@ -17,6 +17,7 @@ import {
   CheckCircleIcon,
   XCircleIcon,
   XIcon,
+  PhoneIcon,
   AlertTriangleIcon
 } from '../../components/common/Icons';
 
@@ -739,6 +740,28 @@ const BookingRequestsPage = () => {
                       >
                         <WhatsAppIcon size={11} color="#ffffff" />
                         <span>Chat</span>
+                      </a>
+                    )}
+
+                    {(supplier?.mobile || supplier?.whatsapp) && (
+                      <a
+                        href={`tel:${(supplier.mobile || supplier.whatsapp).replace(/[^\d+]/g, '')}`}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 3,
+                          background: '#0284c7',
+                          color: '#ffffff',
+                          padding: '0.2rem 0.5rem',
+                          borderRadius: '4px',
+                          fontSize: '0.7rem',
+                          fontWeight: 700,
+                          textDecoration: 'none'
+                        }}
+                        title={`Direct call to ${supplier.fullName} (${supplier.mobile || supplier.whatsapp})`}
+                      >
+                        <PhoneIcon size={11} color="#ffffff" />
+                        <span>Call</span>
                       </a>
                     )}
 
