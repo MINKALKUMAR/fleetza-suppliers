@@ -54,21 +54,25 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void initCities() {
-        String[] defaults = {"Chandigarh", "Ludhiana", "Jalandhar", "Amritsar", "Bathinda", "Ambala", "Jammu"};
-        for (String cityName : defaults) {
-            if (!cityRepository.existsByNameIgnoreCase(cityName)) {
-                cityRepository.save(new City(cityName));
-                logger.info("Initialized default city: {}", cityName);
+        if (cityRepository.count() == 0) {
+            String[] defaults = {"Chandigarh", "Ludhiana", "Jalandhar", "Amritsar", "Bathinda", "Ambala", "Jammu"};
+            for (String cityName : defaults) {
+                if (!cityRepository.existsByNameIgnoreCase(cityName)) {
+                    cityRepository.save(new City(cityName));
+                    logger.info("Initialized default city: {}", cityName);
+                }
             }
         }
     }
 
     private void initVehicleGroups() {
-        String[] defaultGroups = {"Dzire", "Ertiga", "Rumion", "Crysta", "Hycross", "Innova", "Sedan AC", "SUV"};
-        for (String groupName : defaultGroups) {
-            if (!vehicleGroupRepository.existsByNameIgnoreCase(groupName)) {
-                vehicleGroupRepository.save(new VehicleGroup(groupName));
-                logger.info("Initialized default vehicle group: {}", groupName);
+        if (vehicleGroupRepository.count() == 0) {
+            String[] defaultGroups = {"Dzire", "Ertiga", "Rumion", "Crysta", "Hycross", "Innova", "Sedan AC", "SUV"};
+            for (String groupName : defaultGroups) {
+                if (!vehicleGroupRepository.existsByNameIgnoreCase(groupName)) {
+                    vehicleGroupRepository.save(new VehicleGroup(groupName));
+                    logger.info("Initialized default vehicle group: {}", groupName);
+                }
             }
         }
     }
