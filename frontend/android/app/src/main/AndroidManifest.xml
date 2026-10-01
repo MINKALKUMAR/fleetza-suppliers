@@ -16,6 +16,9 @@
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBarLaunch"
             android:launchMode="singleTask"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"
+            android:showOnLockScreen="true"
             android:exported="true">
 
             <intent-filter>
@@ -38,7 +41,7 @@
         <!-- Default notification channel for Android FCM background push -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="fleetza_duty_channel" />
+            android:value="fleetza_duty_call" />
     </application>
 
     <!-- Android System Permissions for Background Sound, Vibration & Notifications -->

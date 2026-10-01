@@ -35,11 +35,11 @@ public class FcmPushService {
                     .setNotification(AndroidNotification.builder()
                             .setTitle(title)
                             .setBody(body)
-                            .setChannelId("fleetza_duty_channel")
+                            .setChannelId("fleetza_duty_call")
                             .setPriority(AndroidNotification.Priority.MAX)
                             .setDefaultVibrateTimings(true)
-                            .setDefaultSound(true)
-                            .setSound("default")
+                            .setSound("fleetza_duty_ring")
+                            .setVisibility(AndroidNotification.Visibility.PUBLIC)
                             .build())
                     .build();
 

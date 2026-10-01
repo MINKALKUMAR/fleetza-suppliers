@@ -236,15 +236,15 @@ export const requestNotificationPermission = async () => {
       }
 
       if (receive === 'granted') {
-        // Create high-priority duty notification channel on Android with loud system alert sound
+        // Create high-priority duty notification channel on Android with loud custom ringtone
         try {
           await PushNotifications.createChannel({
-            id: 'fleetza_duty_channel',
-            name: 'Fleetza Duty Dispatches',
-            description: 'High-priority urgent alerts for taxi duty requests',
-            importance: 5, // IMPORTANCE_HIGH (makes sound and displays as heads-up notification)
+            id: 'fleetza_duty_call',
+            name: 'Fleetza Urgent Duty Ring',
+            description: 'Loud telephone-style ringing alerts for taxi duty requests',
+            importance: 5, // IMPORTANCE_HIGH (makes loud ring sound and displays heads-up banner)
             visibility: 1, // VISIBILITY_PUBLIC (shows on lockscreen)
-            sound: 'default',
+            sound: 'fleetza_duty_ring',
             vibration: true,
             lights: true,
             lightColor: '#f59e0b'
