@@ -14,9 +14,11 @@ public class HealthController {
 
     @GetMapping("/health")
     public ResponseEntity<Map<String, Object>> healthCheck() {
+        boolean firebaseActive = !com.google.firebase.FirebaseApp.getApps().isEmpty();
         return ResponseEntity.ok(Map.of(
                 "status", "UP",
                 "service", "fleetza-suppliers-backend",
+                "firebasePushActive", firebaseActive,
                 "timestamp", LocalDateTime.now().toString()
         ));
     }
