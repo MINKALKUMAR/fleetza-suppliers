@@ -34,6 +34,11 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
+
+        <!-- Default notification channel for Android FCM background push -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="fleetza_duty_channel" />
     </application>
 
     <!-- Android System Permissions for Background Sound, Vibration & Notifications -->

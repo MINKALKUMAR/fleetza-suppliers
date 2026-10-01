@@ -39,6 +39,7 @@ public class FcmPushService {
                             .setPriority(AndroidNotification.Priority.MAX)
                             .setDefaultVibrateTimings(true)
                             .setDefaultSound(true)
+                            .setSound("default")
                             .setClickAction("FLUTTER_NOTIFICATION_CLICK")
                             .build())
                     .build();
