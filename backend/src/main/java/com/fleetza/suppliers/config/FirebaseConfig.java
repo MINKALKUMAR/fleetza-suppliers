@@ -21,21 +21,20 @@ public class FirebaseConfig {
         try {
             if (FirebaseApp.getApps().isEmpty()) {
                 String envCredentials = System.getenv("FIREBASE_CREDENTIALS_JSON");
-                InputStream serviceAccount = null;
-
+                InputStream streamToUse = null;
                 if (envCredentials != null && !envCredentials.isBlank()) {
-                    serviceAccount = new java.io.ByteArrayInputStream(envCredentials.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                    streamToUse = new java.io.ByteArrayInputStream(envCredentials.getBytes(java.nio.charset.StandardCharsets.UTF_8));
                 } else {
                     ClassPathResource resource = new ClassPathResource("firebase-service-account.json");
                     if (resource.exists()) {
-                        serviceAccount = resource.getInputStream();
+                        streamToUse = resource.getInputStream();
                     }
                 }
 
-                if (serviceAccount != null) {
-                    try (serviceAccount) {
+                if (streamToUse != null) {
+                    try (InputStream is = streamToUse) {
                         FirebaseOptions options = FirebaseOptions.builder()
-                                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                                .setCredentials(GoogleCredentials.fromStream(is))
                                 .build();
                         FirebaseApp.initializeApp(options);
                         logger.info("Firebase Application successfully initialized for FCM push alerts.");
