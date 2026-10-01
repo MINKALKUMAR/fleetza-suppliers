@@ -251,8 +251,7 @@ export const requestNotificationPermission = async () => {
           });
         } catch {}
 
-        await PushNotifications.register();
-
+        // Attach listeners BEFORE register() so token is guaranteed to be captured
         PushNotifications.removeAllListeners();
 
         PushNotifications.addListener('registration', async (token) => {
@@ -264,8 +263,12 @@ export const requestNotificationPermission = async () => {
           }
         });
 
+        PushNotifications.addListener('registrationError', (error) => {
+          console.error('FCM registration error:', error);
+        });
+
         PushNotifications.addListener('pushNotificationReceived', (notification) => {
-          // Play continuous melodic chime when notification arrives
+          // Play duty chime when push arrives
           playSupplierDutyChime();
         });
 
@@ -275,6 +278,7 @@ export const requestNotificationPermission = async () => {
           }
         });
 
+        await PushNotifications.register();
         return 'granted';
       }
     }

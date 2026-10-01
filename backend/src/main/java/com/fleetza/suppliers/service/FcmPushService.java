@@ -40,7 +40,6 @@ public class FcmPushService {
                             .setDefaultVibrateTimings(true)
                             .setDefaultSound(true)
                             .setSound("default")
-                            .setClickAction("FLUTTER_NOTIFICATION_CLICK")
                             .build())
                     .build();
 
