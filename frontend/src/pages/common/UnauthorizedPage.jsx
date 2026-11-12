@@ -45,7 +45,7 @@ const UnauthorizedPage = () => {
           You are currently logged in as <strong style={{ color: 'var(--text-primary)' }}>{user?.fullName || user?.username || 'Supplier'}</strong>. 
           Accessing the Fleetza Operations Admin Panel requires Admin privileges.
         </p>
-        <div style={{ marginTop: '1.25rem', display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+        <div className="unauthorized-actions">
           <Button variant="primary" size="md" onClick={handleSwitchToAdmin}>
             👑 Sign In as Admin
           </Button>

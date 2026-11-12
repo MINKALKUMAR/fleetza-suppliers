@@ -490,18 +490,18 @@ const BookingRequestsPage = () => {
                 <div className="dispatch-form-group">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <label>Pickup Date <span style={{ fontWeight: 400, color: '#94a3b8' }}>(Optional)</span></label>
-                    <div style={{ display: 'flex', gap: '0.2rem' }}>
+                    <div style={{ display: 'flex', gap: '0.25rem' }}>
                       <button
                         type="button"
                         onClick={() => handleSetQuickDate(0)}
-                        style={{ fontSize: '0.65rem', border: '1px solid #cbd5e1', background: '#f8fafc', borderRadius: '3px', cursor: 'pointer', padding: '0.05rem 0.3rem' }}
+                        style={{ fontSize: '0.7rem', fontWeight: 600, border: '1px solid #cbd5e1', background: '#f8fafc', borderRadius: '4px', cursor: 'pointer', padding: '0.15rem 0.45rem' }}
                       >
                         Today
                       </button>
                       <button
                         type="button"
                         onClick={() => handleSetQuickDate(1)}
-                        style={{ fontSize: '0.65rem', border: '1px solid #cbd5e1', background: '#f8fafc', borderRadius: '3px', cursor: 'pointer', padding: '0.05rem 0.3rem' }}
+                        style={{ fontSize: '0.7rem', fontWeight: 600, border: '1px solid #cbd5e1', background: '#f8fafc', borderRadius: '4px', cursor: 'pointer', padding: '0.15rem 0.45rem' }}
                       >
                         Tmrw
                       </button>
@@ -519,18 +519,18 @@ const BookingRequestsPage = () => {
                 <div className="dispatch-form-group">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <label>Pickup Time <span style={{ fontWeight: 400, color: '#94a3b8' }}>(Optional)</span></label>
-                    <div style={{ display: 'flex', gap: '0.2rem' }}>
+                    <div style={{ display: 'flex', gap: '0.25rem' }}>
                       <button
                         type="button"
                         onClick={() => handleSetQuickTime(30)}
-                        style={{ fontSize: '0.65rem', border: '1px solid #cbd5e1', background: '#f8fafc', borderRadius: '3px', cursor: 'pointer', padding: '0.05rem 0.3rem' }}
+                        style={{ fontSize: '0.7rem', fontWeight: 600, border: '1px solid #cbd5e1', background: '#f8fafc', borderRadius: '4px', cursor: 'pointer', padding: '0.15rem 0.45rem' }}
                       >
                         +30m
                       </button>
                       <button
                         type="button"
                         onClick={() => handleSetQuickTime(60)}
-                        style={{ fontSize: '0.65rem', border: '1px solid #cbd5e1', background: '#f8fafc', borderRadius: '3px', cursor: 'pointer', padding: '0.05rem 0.3rem' }}
+                        style={{ fontSize: '0.7rem', fontWeight: 600, border: '1px solid #cbd5e1', background: '#f8fafc', borderRadius: '4px', cursor: 'pointer', padding: '0.15rem 0.45rem' }}
                       >
                         +1h
                       </button>

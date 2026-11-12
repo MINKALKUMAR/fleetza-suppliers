@@ -59,7 +59,7 @@ const SupplierManagementPage = () => {
   const [cityFilter, setCityFilter] = useState('ALL');
   const [statusFilter, setStatusFilter] = useState('ALL'); // 'ALL' | 'ACTIVE' | 'DISABLED' | 'ONLINE' | 'OFFLINE' | 'INACTIVE_2D'
   const [sortBy, setSortBy] = useState('NAME_ASC'); // 'NAME_ASC' | 'NAME_DESC' | 'VEHICLES_DESC' | 'ONLINE_FIRST' | 'RECENT_ACTIVE' | 'QUOTA_DESC'
-  const [viewMode, setViewMode] = useState('GRID'); // 'GRID' | 'TABLE'
+  const [viewMode, setViewMode] = useState('CARDS'); // 'CARDS' | 'TABLE'
   const [visibleCount, setVisibleCount] = useState(24);
   const [search, setSearch] = useState('');
 
@@ -445,7 +445,7 @@ const SupplierManagementPage = () => {
               </span>
             </div>
 
-            <div className="full-span" style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '0.75rem' }}>
+            <div className="full-span responsive-form-actions">
               <Button type="button" variant="outline" onClick={() => setAddSupplierOpen(false)}>
                 Cancel
               </Button>
@@ -458,11 +458,11 @@ const SupplierManagementPage = () => {
       )}
 
       {/* 3. High-Performance Multi-Filter Toolbar for 100-200+ Suppliers */}
-      <div style={{ background: '#ffffff', borderRadius: '8px', border: '1px solid #e2e8f0', padding: '0.85rem', marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
+      <div className="admin-card-toolbar">
         {/* Row 1: Search, Sort Dropdown, and View Mode Toggle */}
-        <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div className="admin-card-toolbar-top">
           {/* Search Box */}
-          <div style={{ flex: '1 1 260px', position: 'relative', display: 'flex', alignItems: 'center' }}>
+          <div className="admin-card-toolbar-search">
             <SearchIcon size={16} color="#94a3b8" style={{ position: 'absolute', left: '10px', pointerEvents: 'none' }} />
             <input
               type="text"
@@ -494,73 +494,75 @@ const SupplierManagementPage = () => {
             )}
           </div>
 
-          {/* Sort Dropdown */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-              <SlidersIcon size={14} /> Sort:
-            </span>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              style={{
-                height: '38px',
-                padding: '0 0.65rem',
-                borderRadius: '6px',
-                border: '1px solid #cbd5e1',
-                fontSize: '0.825rem',
-                color: '#1e293b',
-                background: '#ffffff',
-                fontWeight: 500,
-                cursor: 'pointer'
-              }}
-            >
-              <option value="NAME_ASC">Name (A → Z)</option>
-              <option value="NAME_DESC">Name (Z → A)</option>
-              <option value="ONLINE_FIRST">🟢 Online First</option>
-              <option value="VEHICLES_DESC">🚗 Most Vehicles</option>
-              <option value="RECENT_ACTIVE">🕒 Recently Active</option>
-              <option value="QUOTA_DESC">📈 Highest Quota</option>
-            </select>
-          </div>
+          <div className="admin-card-toolbar-controls">
+            {/* Sort Dropdown */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flex: 1 }}>
+              <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
+                <SlidersIcon size={14} /> Sort:
+              </span>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                style={{
+                  height: '38px',
+                  padding: '0 0.65rem',
+                  borderRadius: '6px',
+                  border: '1px solid #cbd5e1',
+                  fontSize: '0.825rem',
+                  color: '#1e293b',
+                  background: '#ffffff',
+                  fontWeight: 500,
+                  cursor: 'pointer'
+                }}
+              >
+                <option value="NAME_ASC">Name (A → Z)</option>
+                <option value="NAME_DESC">Name (Z → A)</option>
+                <option value="ONLINE_FIRST">🟢 Online First</option>
+                <option value="VEHICLES_DESC">🚗 Most Vehicles</option>
+                <option value="RECENT_ACTIVE">🕒 Recently Active</option>
+                <option value="QUOTA_DESC">📈 Highest Quota</option>
+              </select>
+            </div>
 
-          {/* View Mode Toggle: Cards vs Table */}
-          <div style={{ display: 'inline-flex', background: '#f1f5f9', padding: '3px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
-            <button
-              type="button"
-              onClick={() => setViewMode('CARDS')}
-              style={{
-                background: viewMode === 'CARDS' ? '#ffffff' : 'transparent',
-                color: viewMode === 'CARDS' ? '#0f172a' : '#64748b',
-                border: 'none',
-                padding: '0.35rem 0.75rem',
-                borderRadius: '4px',
-                fontSize: '0.8rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-                boxShadow: viewMode === 'CARDS' ? '0 1px 2px rgba(0,0,0,0.06)' : 'none',
-                transition: 'all 0.15s ease'
-              }}
-            >
-              🗂️ Cards
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode('TABLE')}
-              style={{
-                background: viewMode === 'TABLE' ? '#ffffff' : 'transparent',
-                color: viewMode === 'TABLE' ? '#0f172a' : '#64748b',
-                border: 'none',
-                padding: '0.35rem 0.75rem',
-                borderRadius: '4px',
-                fontSize: '0.8rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-                boxShadow: viewMode === 'TABLE' ? '0 1px 2px rgba(0,0,0,0.06)' : 'none',
-                transition: 'all 0.15s ease'
-              }}
-            >
-              📋 Table List
-            </button>
+            {/* View Mode Toggle: Cards vs Table */}
+            <div style={{ display: 'inline-flex', background: '#f1f5f9', padding: '3px', borderRadius: '6px', border: '1px solid #e2e8f0', flexShrink: 0 }}>
+              <button
+                type="button"
+                onClick={() => setViewMode('CARDS')}
+                style={{
+                  background: viewMode === 'CARDS' ? '#ffffff' : 'transparent',
+                  color: viewMode === 'CARDS' ? '#0f172a' : '#64748b',
+                  border: 'none',
+                  padding: '0.35rem 0.75rem',
+                  borderRadius: '4px',
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  boxShadow: viewMode === 'CARDS' ? '0 1px 2px rgba(0,0,0,0.06)' : 'none',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                🗂️ Cards
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('TABLE')}
+                style={{
+                  background: viewMode === 'TABLE' ? '#ffffff' : 'transparent',
+                  color: viewMode === 'TABLE' ? '#0f172a' : '#64748b',
+                  border: 'none',
+                  padding: '0.35rem 0.75rem',
+                  borderRadius: '4px',
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  boxShadow: viewMode === 'TABLE' ? '0 1px 2px rgba(0,0,0,0.06)' : 'none',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                📋 Table List
+              </button>
+            </div>
           </div>
         </div>
 
@@ -848,14 +850,7 @@ const SupplierManagementPage = () => {
           </div>
         </div>
       ) : (
-        <div
-          className="supplier-grid-container"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-            gap: '0.85rem'
-          }}
-        >
+        <div className="supplier-grid-container">
           {displayedSuppliers.map((supplier) => {
             const supplierCars = getVehicles(supplier.id);
             const carCount = supplierCars.length;
@@ -1180,19 +1175,7 @@ const SupplierManagementPage = () => {
 
       {/* 5. Load More & Pagination Controls for High-Volume (100-200+) Partners */}
       {filteredAndSortedSuppliers.length > 0 && (
-        <div style={{
-          marginTop: '1.25rem',
-          background: '#ffffff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '8px',
-          padding: '0.85rem 1.25rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '0.75rem',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.03)'
-        }}>
+        <div className="pagination-bar">
           <div style={{ fontSize: '0.85rem', color: '#475569' }}>
             Showing <strong style={{ color: '#0f172a' }}>{displayedSuppliers.length}</strong> of{' '}
             <strong style={{ color: '#0f172a' }}>{filteredAndSortedSuppliers.length}</strong> partners
@@ -1201,7 +1184,7 @@ const SupplierManagementPage = () => {
             )}
           </div>
 
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <div className="pagination-actions">
             {visibleCount < filteredAndSortedSuppliers.length ? (
               <>
                 <button
@@ -1286,29 +1269,30 @@ const SupplierManagementPage = () => {
           }}
         >
           <div
-            className="edit-modal"
-            style={{ maxWidth: '640px', width: '95vw', maxHeight: '88vh', display: 'flex', flexDirection: 'column' }}
+            className="edit-modal edit-modal--wide"
+            role="dialog"
+            aria-modal="true"
           >
             {/* Modal Header */}
-            <div className="panel-heading" style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '0.75rem', marginBottom: '0.75rem' }}>
-              <div>
+            <div className="modal-header">
+              <div className="modal-header-title-wrap">
                 <span className="eyebrow" style={{ color: 'var(--color-primary)', fontWeight: 700 }}>
                   Supplier Fleet Management
                 </span>
-                <h2 style={{ fontSize: '1.25rem', margin: '0.2rem 0', color: 'var(--color-dark)' }}>
+                <h2 style={{ fontSize: '1.15rem', margin: '0.2rem 0', color: 'var(--color-dark)' }}>
                   {managedSupplier.fullName} · {managedSupplier.companyName}
                 </h2>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.8rem', color: 'var(--text-muted)', flexWrap: 'wrap', marginTop: '0.35rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: 'var(--text-muted)', flexWrap: 'wrap', marginTop: '0.35rem' }}>
                   <span style={{ fontWeight: 600 }}>{managedSupplier.city}</span>
                   <span>·</span>
                   <span>
                     Used: <strong>{currentSupplierVehicles.length}</strong> / <strong>{managedSupplier.vehicleLimit || 5}</strong> cars
                   </span>
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', background: '#f1f5f9', padding: '0.15rem 0.4rem', borderRadius: 4, marginLeft: '0.25rem' }}>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', background: '#f1f5f9', padding: '0.15rem 0.4rem', borderRadius: 4 }}>
                     <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Limit:</span>
                     <button
                       type="button"
-                      style={{ padding: '0.05rem 0.35rem', fontSize: '0.75rem', fontWeight: 700, borderRadius: 3, border: '1px solid #cbd5e1', background: '#ffffff', cursor: 'pointer' }}
+                      style={{ padding: '0.1rem 0.45rem', fontSize: '0.8rem', fontWeight: 700, borderRadius: 4, border: '1px solid #cbd5e1', background: '#ffffff', cursor: 'pointer', minWidth: '26px', minHeight: '26px' }}
                       title="Decrease quota limit"
                       onClick={async () => {
                         const newLimit = Math.max(1, (managedSupplier.vehicleLimit || 5) - 1);
@@ -1319,12 +1303,12 @@ const SupplierManagementPage = () => {
                     >
                       -
                     </button>
-                    <strong style={{ fontSize: '0.8rem', minWidth: '16px', textAlign: 'center' }}>
+                    <strong style={{ fontSize: '0.8rem', minWidth: '18px', textAlign: 'center' }}>
                       {managedSupplier.vehicleLimit || 5}
                     </strong>
                     <button
                       type="button"
-                      style={{ padding: '0.05rem 0.35rem', fontSize: '0.75rem', fontWeight: 700, borderRadius: 3, border: '1px solid #cbd5e1', background: '#ffffff', cursor: 'pointer' }}
+                      style={{ padding: '0.1rem 0.45rem', fontSize: '0.8rem', fontWeight: 700, borderRadius: 4, border: '1px solid #cbd5e1', background: '#ffffff', cursor: 'pointer', minWidth: '26px', minHeight: '26px' }}
                       title="Increase quota limit"
                       onClick={async () => {
                         const newLimit = (managedSupplier.vehicleLimit || 5) + 1;
@@ -1340,10 +1324,11 @@ const SupplierManagementPage = () => {
               </div>
               <button
                 type="button"
+                className="modal-close-btn"
                 onClick={() => setManagedSupplier(null)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
+                aria-label="Close modal"
               >
-                <XIcon size={20} />
+                <XIcon size={18} />
               </button>
             </div>
 
@@ -1602,15 +1587,20 @@ const SupplierManagementPage = () => {
             if (e.target === e.currentTarget) setEditingSupplier(null);
           }}
         >
-          <section className="edit-modal" role="dialog" aria-modal="true" style={{ maxWidth: '480px' }}>
-            <div className="panel-heading">
-              <div>
+          <section className="edit-modal" role="dialog" aria-modal="true">
+            <div className="modal-header">
+              <div className="modal-header-title-wrap">
                 <span className="eyebrow">Supplier Profile & Quota</span>
-                <h2 style={{ fontSize: '1.2rem', margin: 0 }}>Edit {editingSupplier.fullName}</h2>
+                <h2 style={{ fontSize: '1.15rem', margin: 0 }}>Edit {editingSupplier.fullName}</h2>
               </div>
-              <Button size="sm" variant="outline" onClick={() => setEditingSupplier(null)}>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setEditingSupplier(null)}
+                aria-label="Close modal"
+              >
                 <XIcon size={16} />
-              </Button>
+              </button>
             </div>
 
             <form onSubmit={handleSaveSupplierEdit} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', marginTop: '0.75rem', maxHeight: '72vh', overflowY: 'auto', paddingRight: '0.25rem' }}>
@@ -1726,15 +1716,20 @@ const SupplierManagementPage = () => {
             if (e.target === e.currentTarget) setPasswordModal(null);
           }}
         >
-          <section className="edit-modal" role="dialog" aria-modal="true" style={{ maxWidth: '420px' }}>
-            <div className="panel-heading">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <section className="edit-modal edit-modal--compact" role="dialog" aria-modal="true">
+            <div className="modal-header">
+              <div className="modal-header-title-wrap" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <KeyIcon size={20} color="var(--color-primary)" />
                 <h2 style={{ fontSize: '1.15rem', margin: 0 }}>Reset Password</h2>
               </div>
-              <Button size="sm" variant="outline" onClick={() => setPasswordModal(null)}>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setPasswordModal(null)}
+                aria-label="Close modal"
+              >
                 <XIcon size={16} />
-              </Button>
+              </button>
             </div>
 
             <p style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)', marginTop: '0.5rem' }}>

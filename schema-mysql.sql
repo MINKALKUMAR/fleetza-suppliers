@@ -27,6 +27,10 @@ CREATE TABLE IF NOT EXISTS `users` (
     `status` VARCHAR(30) NOT NULL DEFAULT 'ACTIVE',
     `requires_password_change` BOOLEAN NOT NULL DEFAULT FALSE,
     `supplier_id` BIGINT DEFAULT NULL,
+    `vehicle_limit` INT DEFAULT 5,
+    `last_login_at` DATETIME DEFAULT NULL,
+    `last_active_at` DATETIME DEFAULT NULL,
+    `is_online` BOOLEAN DEFAULT FALSE,
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX `idx_users_username` (`username`),
@@ -67,8 +71,11 @@ CREATE TABLE IF NOT EXISTS `booking_requests` (
     `remarks` VARCHAR(500) DEFAULT NULL,
     `pickup_date` VARCHAR(30) DEFAULT NULL,
     `pickup_time` VARCHAR(30) DEFAULT NULL,
-    `duty_type` VARCHAR(50) DEFAULT '4/40',
+    `duty_type` VARCHAR(50) DEFAULT '8/80',
     `pickup_location` VARCHAR(200) DEFAULT NULL,
+    `drop_location` VARCHAR(250) DEFAULT NULL,
+    `passenger_name` VARCHAR(150) DEFAULT NULL,
+    `passenger_phone` VARCHAR(50) DEFAULT NULL,
     `status` VARCHAR(30) NOT NULL DEFAULT 'REQUESTED',
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `completed_at` DATETIME DEFAULT NULL,
@@ -100,6 +107,29 @@ CREATE TABLE IF NOT EXISTS `cities` (
     INDEX `idx_cities_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- 8. Vehicle Groups Table
+CREATE TABLE IF NOT EXISTS `vehicle_groups` (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `name` VARCHAR(100) NOT NULL UNIQUE,
+    `active` BOOLEAN NOT NULL DEFAULT TRUE,
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 9. Web Push (VAPID) Subscriptions Table
+CREATE TABLE IF NOT EXISTS `push_subscriptions` (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `user_id` BIGINT NOT NULL,
+    `endpoint_hash` VARCHAR(64) NOT NULL UNIQUE,
+    `endpoint` VARCHAR(1024) NOT NULL,
+    `p256dh` VARCHAR(512) NOT NULL,
+    `auth` VARCHAR(256) NOT NULL,
+    `user_agent` VARCHAR(512) DEFAULT NULL,
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX `idx_push_sub_user_id` (`user_id`),
+    INDEX `idx_push_sub_endpoint_hash` (`endpoint_hash`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Initial Core Roles
 INSERT IGNORE INTO `roles` (`name`) VALUES
 ('ROLE_SUPER_ADMIN'),
@@ -116,3 +146,14 @@ INSERT IGNORE INTO `cities` (`name`) VALUES
 ('Bathinda'),
 ('Ambala'),
 ('Jammu');
+
+-- Initial Core Vehicle Groups
+INSERT IGNORE INTO `vehicle_groups` (`name`) VALUES
+('Dzire'),
+('Ertiga'),
+('Rumion'),
+('Crysta'),
+('Hycross'),
+('Innova'),
+('Sedan AC'),
+('SUV');

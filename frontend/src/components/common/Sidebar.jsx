@@ -103,10 +103,19 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
 
   const location = useLocation();
 
-  // Close mobile sidebar automatically on route change
+  // Close mobile sidebar automatically on route change or Escape key
   useEffect(() => {
     closeSidebar();
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') closeSidebar();
+    };
+    document.addEventListener('keydown', handleEsc);
+    return () => document.removeEventListener('keydown', handleEsc);
+  }, [isOpen, closeSidebar]);
 
   const handleNavClick = (e, to) => {
     if (e) e.preventDefault();

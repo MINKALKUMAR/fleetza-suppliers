@@ -5,6 +5,7 @@ import com.fleetza.suppliers.dto.response.JwtAuthResponse;
 import com.fleetza.suppliers.security.JwtTokenProvider;
 import com.fleetza.suppliers.security.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -30,6 +31,9 @@ public class AuthService {
     @Autowired
     private UserRepository userRepository;
 
+    @Value("${app.auth.allow-demo-aliases:false}")
+    private boolean allowDemoAliases;
+
     public JwtAuthResponse authenticateUser(LoginRequest loginRequest) {
         String rawUsername = loginRequest.getUsername() != null ? loginRequest.getUsername().trim() : "";
         String rawPassword = loginRequest.getPassword() != null ? loginRequest.getPassword() : "";
@@ -39,25 +43,26 @@ public class AuthService {
                 .orElse(null);
         String usernameToAuth = existingUser != null ? existingUser.getUsername() : rawUsername;
 
-        // Convenient password aliases for demo / testing accounts
         String passwordToAuth = rawPassword;
-        if ("admin".equalsIgnoreCase(rawUsername)) {
-            if ("admin".equalsIgnoreCase(rawPassword) ||
-                "admin123".equalsIgnoreCase(rawPassword) ||
-                "admin@123".equalsIgnoreCase(rawPassword) ||
-                "Admin@123".equalsIgnoreCase(rawPassword) ||
-                "admin@12345".equalsIgnoreCase(rawPassword)) {
-                passwordToAuth = "Admin@12345";
-            }
-        } else if ("supplier_demo".equalsIgnoreCase(rawUsername) ||
-                   "ludhiana_fleet".equalsIgnoreCase(rawUsername) ||
-                   "amritsar_cabs".equalsIgnoreCase(rawUsername)) {
-            if ("supplier".equalsIgnoreCase(rawPassword) ||
-                "supplier123".equalsIgnoreCase(rawPassword) ||
-                "Supplier@123".equalsIgnoreCase(rawPassword) ||
-                "supplier@123".equalsIgnoreCase(rawPassword) ||
-                "supplier@12345".equalsIgnoreCase(rawPassword)) {
-                passwordToAuth = "Supplier@12345";
+        if (allowDemoAliases) {
+            if ("admin".equalsIgnoreCase(rawUsername)) {
+                if ("admin".equalsIgnoreCase(rawPassword) ||
+                    "admin123".equalsIgnoreCase(rawPassword) ||
+                    "admin@123".equalsIgnoreCase(rawPassword) ||
+                    "Admin@123".equalsIgnoreCase(rawPassword) ||
+                    "admin@12345".equalsIgnoreCase(rawPassword)) {
+                    passwordToAuth = "Admin@12345";
+                }
+            } else if ("supplier_demo".equalsIgnoreCase(rawUsername) ||
+                       "ludhiana_fleet".equalsIgnoreCase(rawUsername) ||
+                       "amritsar_cabs".equalsIgnoreCase(rawUsername)) {
+                if ("supplier".equalsIgnoreCase(rawPassword) ||
+                    "supplier123".equalsIgnoreCase(rawPassword) ||
+                    "Supplier@123".equalsIgnoreCase(rawPassword) ||
+                    "supplier@123".equalsIgnoreCase(rawPassword) ||
+                    "supplier@12345".equalsIgnoreCase(rawPassword)) {
+                    passwordToAuth = "Supplier@12345";
+                }
             }
         }
 

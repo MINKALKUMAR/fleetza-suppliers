@@ -2,6 +2,7 @@ package com.fleetza.suppliers.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,14 +21,25 @@ public class JwtTokenProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
 
-    @Value("${app.jwt.secret}")
+    @Value("${app.jwt.secret:}")
     private String jwtSecret;
 
-    @Value("${app.jwt.expiration-ms}")
+    @Value("${app.jwt.expiration-ms:2592000000}")
     private long jwtExpirationInMs;
 
+    @PostConstruct
+    public void validateSecret() {
+        if (jwtSecret == null || jwtSecret.isBlank()) {
+            throw new IllegalStateException("JWT_SECRET is missing. Set a 64+ character JWT_SECRET (for example: openssl rand -hex 32) before starting in production.");
+        }
+        byte[] keyBytes = jwtSecret.trim().getBytes(StandardCharsets.UTF_8);
+        if (keyBytes.length < 64) {
+            throw new IllegalStateException("JWT_SECRET must be at least 64 characters/bytes for HS512 signing (generate with: openssl rand -hex 32).");
+        }
+    }
+
     private Key getSigningKey() {
-        byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
+        byte[] keyBytes = jwtSecret.trim().getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 

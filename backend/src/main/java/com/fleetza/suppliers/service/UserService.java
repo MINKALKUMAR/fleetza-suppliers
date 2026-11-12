@@ -12,6 +12,7 @@ import com.fleetza.suppliers.exception.BadRequestException;
 import com.fleetza.suppliers.exception.ResourceNotFoundException;
 import com.fleetza.suppliers.repository.BookingRequestRepository;
 import com.fleetza.suppliers.repository.NotificationRepository;
+import com.fleetza.suppliers.repository.PushSubscriptionRepository;
 import com.fleetza.suppliers.repository.RoleRepository;
 import com.fleetza.suppliers.repository.UserRepository;
 import com.fleetza.suppliers.repository.VehicleRepository;
@@ -48,6 +49,9 @@ public class UserService {
 
     @Autowired
     private NotificationRepository notificationRepository;
+
+    @Autowired
+    private PushSubscriptionRepository pushSubscriptionRepository;
 
     @Transactional
     public UserSummaryResponse getCurrentUserProfile(UserPrincipal currentUser) {
@@ -183,6 +187,7 @@ public class UserService {
         vehicleRepository.deleteBySupplierId(id);
         bookingRequestRepository.deleteBySupplierId(id);
         notificationRepository.deleteByRecipientId(id.toString());
+        pushSubscriptionRepository.deleteByUserId(id);
         userRepository.delete(supplier);
     }
 
@@ -252,15 +257,6 @@ public class UserService {
             response.setDaysSinceLastLogin(null);
         }
         return response;
-    }
-
-    @Transactional
-    public void updateFcmToken(Long userId, String fcmToken) {
-        if (userId == null) return;
-        userRepository.findById(userId).ifPresent(user -> {
-            user.setFcmToken(fcmToken != null ? fcmToken.trim() : null);
-            userRepository.save(user);
-        });
     }
 
     private String blankToNull(String value) {

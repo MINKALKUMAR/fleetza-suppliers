@@ -7,6 +7,7 @@ import com.fleetza.suppliers.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -44,13 +45,21 @@ public class DataInitializer implements CommandLineRunner {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Value("${app.seed-demo-data:false}")
+    private boolean seedDemoData;
+
+    @Value("${app.admin.initial-password:Admin@12345}")
+    private String initialAdminPassword;
+
     @Override
     public void run(String... args) {
         initRoles();
         initCities();
         initVehicleGroups();
         initDefaultUsers();
-        initSampleBookings();
+        if (seedDemoData) {
+            initSampleBookings();
+        }
     }
 
     private void initCities() {
@@ -93,9 +102,12 @@ public class DataInitializer implements CommandLineRunner {
 
         // Operations Admin (Single Admin Panel)
         if (!userRepository.existsByUsername("admin")) {
+            String rawAdminPass = (initialAdminPassword != null && !initialAdminPassword.isBlank())
+                    ? initialAdminPassword.trim()
+                    : "Admin@12345";
             User admin = new User(
                     "admin",
-                    passwordEncoder.encode("Admin@12345"),
+                    passwordEncoder.encode(rawAdminPass),
                     "Fleetza Operations Admin",
                     "admin@fleetza.com",
                     "8264083932"
@@ -111,12 +123,10 @@ public class DataInitializer implements CommandLineRunner {
             admin.setVehicleLimit(50);
             userRepository.save(admin);
             logger.info("Initialized admin user: admin with business WhatsApp: 8264083932");
-        } else {
-            userRepository.findByUsername("admin").ifPresent(admin -> {
-                admin.setMobile("8264083932");
-                admin.setWhatsapp("+918264083932");
-                userRepository.save(admin);
-            });
+        }
+
+        if (!seedDemoData) {
+            return;
         }
 
         // Demo Supplier 1: Royal Cabs Chandigarh

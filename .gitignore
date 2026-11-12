@@ -2,8 +2,6 @@
 .env
 .env.local
 .env.*.local
-firebase-service-account.json
-*firebase-service-account*.json
 
 # Compiled class files
 *.class
@@ -13,7 +11,6 @@ firebase-service-account.json
 
 # Package Files
 *.jar
-!frontend/android/gradle/wrapper/gradle-wrapper.jar
 !gradle/wrapper/gradle-wrapper.jar
 *.war
 *.nar
@@ -51,10 +48,5 @@ dist-ssr/
 *.suo
 *.ntvs*
 *.njsproj
-# Android
-frontend/android/app/build/
-frontend/android/.gradle/
-frontend/android/build/
-*.apk
-*.aab
+
 

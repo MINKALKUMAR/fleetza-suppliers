@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import WebPushStatusControl from '../../components/common/WebPushStatusControl';
 import {
   TaxiIcon,
   BellIcon,
@@ -99,7 +100,7 @@ const AdminNotificationsPage = () => {
   }, [last100Notifications, activeTab, searchTerm]);
 
   return (
-    <div className="admin-container" style={{ padding: '0.75rem' }}>
+    <div className="admin-container">
       {/* Compact Header */}
       <div
         style={{
@@ -166,17 +167,10 @@ const AdminNotificationsPage = () => {
         </div>
       </div>
 
+      <WebPushStatusControl />
+
       {/* Filter Chips & Search Bar */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '0.5rem',
-          marginBottom: '0.65rem'
-        }}
-      >
+      <div className="admin-notif-toolbar">
         <div className="filter-chips-scroll">
           <button
             type="button"
@@ -227,7 +221,7 @@ const AdminNotificationsPage = () => {
           </button>
         </div>
 
-        <div style={{ flex: '1 1 180px', maxWidth: '260px' }}>
+        <div className="admin-notif-search">
           <input
             type="text"
             className="form-input"
@@ -266,6 +260,7 @@ const AdminNotificationsPage = () => {
             return (
               <div
                 key={notification.id}
+                className="admin-notif-row"
                 onClick={() => handleRead(notification.id)}
                 style={{
                   background: isUnread ? '#f8fafc' : '#ffffff',
@@ -274,20 +269,11 @@ const AdminNotificationsPage = () => {
                     ? '3px solid #10b981'
                     : isDeclined
                     ? '3px solid #ef4444'
-                    : '3px solid #3b82f6',
-                  borderRadius: '6px',
-                  padding: '0.55rem 0.85rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  flexWrap: 'wrap',
-                  gap: '0.5rem',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease'
+                    : '3px solid #3b82f6'
                 }}
               >
                 {/* Left Content */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap', flex: 1, minWidth: '240px' }}>
+                <div className="admin-notif-row-main">
                   <span
                     style={{
                       fontSize: '0.68rem',
@@ -307,7 +293,7 @@ const AdminNotificationsPage = () => {
 
                   {/* Important inline metadata: Supplier name, City, Vehicle */}
                   {(supplier || vehicle) && (
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.76rem', color: 'var(--text-secondary)' }}>
+                    <div className="admin-notif-meta">
                       <span>•</span>
                       {supplier && (
                         <span>

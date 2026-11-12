@@ -162,23 +162,13 @@ const AdminLiveDutyAlerts = () => {
       {activeAlert && (
         <div
           role="alert"
+          className="admin-live-alert-banner"
           style={{
             background: activeAlert.type === 'ACCEPTED' ? '#064e3b' : '#7f1d1d',
-            color: '#ffffff',
-            padding: '0.65rem 1.25rem',
-            borderRadius: '8px',
-            marginBottom: '1rem',
-            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '0.75rem',
-            animation: 'fadeInAlert 0.25s ease',
             border: activeAlert.type === 'ACCEPTED' ? '1px solid #059669' : '1px solid #dc2626'
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
+          <div className="admin-live-alert-meta">
             <span
               style={{
                 background: activeAlert.type === 'ACCEPTED' ? '#10b981' : '#ef4444',
@@ -214,7 +204,7 @@ const AdminLiveDutyAlerts = () => {
             </span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div className="admin-live-alert-controls">
             <button
               type="button"
               onClick={toggleSound}

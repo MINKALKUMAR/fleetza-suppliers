@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Button from './Button';
 import PwaInstallPrompt from './PwaInstallPrompt';
+import WebPushStatusControl from './WebPushStatusControl';
 import { TaxiIcon, BellIcon, LogoutIcon } from './Icons';
 
 const Navbar = ({ toggleSidebar }) => {
@@ -19,10 +20,17 @@ const Navbar = ({ toggleSidebar }) => {
         setNotificationsOpen(false);
       }
     };
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') setNotificationsOpen(false);
+    };
     if (notificationsOpen) {
       document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleEsc);
     }
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEsc);
+    };
   }, [notificationsOpen]);
 
   const getDisplayRole = () => {
@@ -40,7 +48,7 @@ const Navbar = ({ toggleSidebar }) => {
 
   return (
     <header className="app-navbar">
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+      <div className="navbar-left">
         {toggleSidebar && (
           <button
             type="button"
@@ -58,10 +66,10 @@ const Navbar = ({ toggleSidebar }) => {
             </svg>
           </button>
         )}
-        <div style={{ fontWeight: 800, fontSize: '1.05rem', color: 'var(--color-dark)', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+        <div className="navbar-brand">
           <TaxiIcon size={20} color="#f59e0b" />
           <span>FLEETZA</span>
-          <span style={{ color: 'var(--color-primary)', fontWeight: 700, fontSize: '0.7rem', background: '#eff6ff', padding: '0.1rem 0.45rem', borderRadius: '4px' }}>
+          <span className="navbar-brand-tag">
             OPERATIONS
           </span>
         </div>
@@ -115,6 +123,8 @@ const Navbar = ({ toggleSidebar }) => {
                   </button>
                 )}
               </div>
+
+              <WebPushStatusControl compact />
 
               {notifications.length === 0 ? (
                 <p className="navbar-notification-empty" style={{ fontSize: '0.78rem', padding: '0.85rem' }}>No recent notifications.</p>

@@ -104,7 +104,21 @@ const LoginPage = () => {
             {isCheckingServer ? 'Connecting to the Fleetza server…' : 'The Fleetza server is not responding. Login will not work until it is back online.'}
           </span>
           {serverUnavailable && (
-            <button type="button" onClick={checkServer} style={{ flexShrink: 0 }}>
+            <button
+              type="button"
+              onClick={checkServer}
+              style={{
+                flexShrink: 0,
+                padding: '0.35rem 0.7rem',
+                borderRadius: '6px',
+                border: '1px solid #fca5a5',
+                background: '#ffffff',
+                color: '#991b1b',
+                fontWeight: 700,
+                fontSize: '0.75rem',
+                cursor: 'pointer'
+              }}
+            >
               Retry
             </button>
           )}

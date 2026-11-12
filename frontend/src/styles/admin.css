@@ -1219,9 +1219,191 @@
 /* ---------------- Supplier-Wise Vehicle Live Tracker ---------------- */
 .supplier-fleet-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
   gap: 0.75rem;
   margin-top: 0.5rem;
+}
+
+/* Base styles for Supplier Activity Monitor rows (Desktop + Tablet + Mobile) */
+.supplier-monitor-row {
+  background: #ffffff;
+  border-radius: var(--radius-sm, 6px);
+  padding: 0.55rem 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.supplier-monitor-row:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.supplier-monitor-info {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
+.supplier-monitor-time {
+  margin-left: auto;
+  font-size: 0.7rem;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+.supplier-monitor-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.admin-search-input-wrap {
+  min-width: 170px;
+  max-width: 240px;
+  width: 100%;
+}
+
+.admin-inline-form {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 0.65rem;
+  max-width: 480px;
+  width: 100%;
+}
+
+.admin-master-city-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
+  gap: 0.45rem;
+}
+
+.admin-master-group-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 170px), 1fr));
+  gap: 0.45rem;
+}
+
+.admin-card-toolbar {
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  padding: 0.85rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.admin-card-toolbar-top {
+  display: flex;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-card-toolbar-search {
+  flex: 1 1 240px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.admin-card-toolbar-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.supplier-grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: 0.85rem;
+}
+
+.admin-live-alert-banner {
+  color: #ffffff;
+  padding: 0.65rem 1.1rem;
+  border-radius: 8px;
+  margin-bottom: 0.9rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  animation: fadeInAlert 0.25s ease;
+}
+
+.admin-live-alert-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  min-width: 0;
+  flex: 1 1 240px;
+}
+
+.admin-live-alert-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
+}
+
+.admin-notif-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.65rem;
+}
+
+.admin-notif-search {
+  flex: 1 1 180px;
+  max-width: 260px;
+}
+
+.admin-notif-row {
+  border-radius: 6px;
+  padding: 0.6rem 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.admin-notif-row-main {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  flex: 1 1 0%;
+  min-width: 0;
+}
+
+.admin-notif-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  font-size: 0.76rem;
+  color: var(--text-secondary);
 }
 
 .supplier-fleet-card {
@@ -1287,8 +1469,30 @@
 
 @media (max-width: 768px) {
   .admin-container {
-    padding: 0.25rem 0.35rem 1.25rem;
+    padding: 0.15rem 0 1.25rem;
     gap: 0.65rem;
+  }
+
+  .admin-search-input-wrap,
+  .admin-notif-search {
+    max-width: 100%;
+    min-width: 0;
+    flex: 1 1 100%;
+  }
+
+  .admin-card-toolbar-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .admin-card-toolbar-controls select {
+    flex: 1;
+    min-width: 0;
+    font-size: 16px;
+  }
+
+  .admin-inline-form {
+    max-width: 100%;
   }
 
   .admin-hero-card {
@@ -1660,6 +1864,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 0.5rem;
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 0.45rem;
@@ -1783,11 +1988,12 @@
   background: #f0fdf4;
   border: 1px solid #bbf7d0;
   border-radius: var(--radius-sm);
-  padding: 0.4rem 0.65rem;
+  padding: 0.45rem 0.65rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.4rem;
+  flex-wrap: wrap;
+  gap: 0.45rem;
 }
 
 .dispatch-duty-pills {
@@ -2007,7 +2213,7 @@
 
 @media (max-width: 768px) {
   .dispatch-compact-container {
-    padding: 0.25rem 0;
+    padding: 0.15rem 0 1rem;
   }
 
   .dispatch-split-deck {
@@ -2022,12 +2228,42 @@
   .dispatch-tracker-compact-row {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.45rem;
-    padding: 0.6rem 0.65rem;
+    gap: 0.5rem;
+    padding: 0.65rem;
   }
 
   .dispatch-tracker-compact-row > div:last-child {
     width: 100%;
-    justify-content: space-between;
+    justify-content: flex-start;
+    gap: 0.45rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-inline-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-inline-form > button {
+    width: 100%;
+    min-height: 38px;
+    justify-content: center;
+  }
+
+  .admin-master-group-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dispatch-panel-header > div {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .dispatch-tracker-compact-row > div:last-child > a,
+  .dispatch-tracker-compact-row > div:last-child > button {
+    min-height: 34px;
+    padding: 0.3rem 0.6rem;
   }
 }

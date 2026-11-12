@@ -1,62 +1,109 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import {
-  requestNotificationPermission,
+  subscribeToWebPush,
+  getExistingPushSubscription,
+  isPushSupported,
+  isIosDevice,
+  isStandalonePwa,
   unlockAudioContext,
-  playSupplierDutyChime
+  playSupplierDutyChime,
+  playNotificationChime
 } from '../../utils/notificationSound';
-import { BellIcon, VolumeOnIcon, CheckIcon, TaxiIcon } from './Icons';
+import { pushApi } from '../../api/pushApi';
+import { BellIcon, VolumeOnIcon, CheckIcon } from './Icons';
+
+const DISMISS_KEY = 'fleetza_notif_banner_dismissed';
 
 const NotificationPermissionBanner = () => {
   const { user, hasRole } = useAuth();
+  const { showToast } = useToast();
   const isSupplier = hasRole('SUPPLIER');
 
   const [permissionState, setPermissionState] = useState(() => {
     if (typeof window !== 'undefined' && 'Notification' in window) {
       return Notification.permission;
     }
-    return 'granted';
+    return 'unsupported';
   });
 
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [dismissed, setDismissed] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('fleetza_notif_banner_dismissed') === 'true';
+      return sessionStorage.getItem(DISMISS_KEY) === 'true';
     }
     return false;
   });
 
-  const [tested, setTested] = useState(false);
-
-  useEffect(() => {
+  const syncState = async () => {
     if (typeof window !== 'undefined' && 'Notification' in window) {
       setPermissionState(Notification.permission);
     }
-  }, []);
+    const sub = await getExistingPushSubscription();
+    setIsSubscribed(Boolean(sub));
+  };
 
-  // Hide modal once granted or dismissed in this session
-  if (!isSupplier || permissionState === 'granted' || dismissed) {
-    return null;
-  }
+  useEffect(() => {
+    if (!user?.id) return;
+    syncState();
+
+    const handler = () => syncState();
+    window.addEventListener('fleetza:push-status-changed', handler);
+    return () => window.removeEventListener('fleetza:push-status-changed', handler);
+  }, [user?.id]);
+
+  // Hide modal if not logged in, already granted & subscribed, unsupported, or dismissed this session
+  const needsIosInstall = isIosDevice() && !isStandalonePwa();
+  if (!user || dismissed) return null;
+  if (permissionState === 'granted' && (isSubscribed || !isPushSupported())) return null;
+  if (permissionState === 'denied' || permissionState === 'unsupported') return null;
 
   const handleEnableAlerts = async () => {
+    setLoading(true);
     try {
       unlockAudioContext();
-      playSupplierDutyChime();
+      if (isSupplier) {
+        playSupplierDutyChime();
+      } else {
+        playNotificationChime();
+      }
     } catch {}
 
-    const result = await requestNotificationPermission();
-    setPermissionState(result);
-    setDismissed(true);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('fleetza_notif_banner_dismissed', 'true');
+    const res = await subscribeToWebPush({ interactive: true });
+    setLoading(false);
+
+    if (res.status === 'ios-install-required') {
+      showToast('On iPhone/iPad, tap Share -> Add to Home Screen first to enable Push Alerts.', 'info', 6000);
+      return;
+    }
+
+    await syncState();
+
+    if (res.status === 'granted') {
+      if (res.subscribed) {
+        showToast('Web Push notifications enabled on this device!', 'success', 4000);
+        try {
+          await pushApi.sendTestPush();
+        } catch {}
+      } else if (!res.configured) {
+        showToast('Browser notifications allowed. Server VAPID keys pending in /etc/fleetza/supplier.env.', 'info', 5000);
+      } else {
+        showToast('Browser notifications enabled!', 'success', 3500);
+      }
+      setDismissed(true);
+      sessionStorage.setItem(DISMISS_KEY, 'true');
+    } else if (res.status === 'denied') {
+      showToast('Notifications blocked in browser settings. Enable them in site permissions anytime.', 'warning', 5000);
+      setDismissed(true);
+      sessionStorage.setItem(DISMISS_KEY, 'true');
     }
   };
 
   const handleClose = () => {
     setDismissed(true);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('fleetza_notif_banner_dismissed', 'true');
-    }
+    sessionStorage.setItem(DISMISS_KEY, 'true');
   };
 
   return (
@@ -64,7 +111,7 @@ const NotificationPermissionBanner = () => {
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: 'rgba(15, 23, 42, 0.85)',
+        backgroundColor: 'rgba(15, 23, 42, 0.78)',
         zIndex: 9999,
         display: 'flex',
         alignItems: 'center',
@@ -75,12 +122,14 @@ const NotificationPermissionBanner = () => {
     >
       <div
         style={{
-          background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)',
+          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
           color: '#ffffff',
           borderRadius: '16px',
-          padding: '1.5rem',
+          padding: '1.35rem 1.2rem',
           maxWidth: '440px',
           width: '100%',
+          maxHeight: '90dvh',
+          overflowY: 'auto',
           border: '1.5px solid #3b82f6',
           boxShadow: '0 20px 35px -5px rgba(0, 0, 0, 0.7)',
           textAlign: 'center',
@@ -126,26 +175,39 @@ const NotificationPermissionBanner = () => {
           <BellIcon size={26} color="#ffffff" />
         </div>
 
-        <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: '0 0 0.5rem', color: '#ffffff' }}>
-          Enable Duty Sound & Notifications
+        <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: '0 0 0.5rem', color: '#ffffff' }}>
+          {needsIosInstall ? 'Install App for iPhone Push Alerts' : 'Enable Instant Web Push Alerts'}
         </h3>
 
-        <p style={{ margin: '0 0 1.25rem', fontSize: '0.85rem', color: '#cbd5e1', lineHeight: 1.5 }}>
-          To receive duty requests with loud sound alerts and vibration when your app is in the background or screen is off, please tap <strong>Allow</strong> below.
+        <p style={{ margin: '0 0 1.2rem', fontSize: '0.85rem', color: '#cbd5e1', lineHeight: 1.5 }}>
+          {needsIosInstall ? (
+            <>
+              On iPhone Safari (iOS 16.4+), tap <strong>Share</strong> &rarr; <strong>Add to Home Screen</strong>, then open the installed Fleetza icon to receive background alerts.
+            </>
+          ) : isSupplier ? (
+            <>
+              Receive incoming taxi duty dispatches instantly on your phone or desktop — even when the browser tab is closed or your screen is locked.
+            </>
+          ) : (
+            <>
+              Get instant desktop and mobile Web Push alerts whenever a supplier accepts, declines, or completes a dispatched duty.
+            </>
+          )}
         </p>
 
         <button
           type="button"
-          onClick={handleEnableAlerts}
+          disabled={loading}
+          onClick={needsIosInstall ? handleClose : handleEnableAlerts}
           style={{
             background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
             color: '#ffffff',
             border: 'none',
             borderRadius: '8px',
             padding: '0.75rem 1.5rem',
-            fontSize: '0.95rem',
+            fontSize: '0.92rem',
             fontWeight: 800,
-            cursor: 'pointer',
+            cursor: loading ? 'wait' : 'pointer',
             width: '100%',
             display: 'flex',
             alignItems: 'center',
@@ -154,12 +216,18 @@ const NotificationPermissionBanner = () => {
             boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4)'
           }}
         >
-          <VolumeOnIcon size={18} />
-          <span>ALLOW SOUND & NOTIFICATIONS</span>
+          {needsIosInstall ? <CheckIcon size={18} /> : <VolumeOnIcon size={18} />}
+          <span>
+            {needsIosInstall
+              ? 'GOT IT'
+              : loading
+              ? 'ENABLING WEB PUSH...'
+              : 'ALLOW PUSH & SOUND ALERTS'}
+          </span>
         </button>
 
         <div style={{ marginTop: '0.85rem', fontSize: '0.72rem', color: '#94a3b8' }}>
-          🔒 Required once by Fleetza to ring mobile speaker on incoming duties
+          Zero-cost secured Web Push (VAPID) · Works on Android, Windows, Mac &amp; iOS PWA
         </div>
       </div>
     </div>
@@ -167,4 +235,3 @@ const NotificationPermissionBanner = () => {
 };
 
 export default NotificationPermissionBanner;
-

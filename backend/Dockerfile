@@ -10,8 +10,8 @@ WORKDIR /workspace/app
 COPY pom.xml .
 RUN mvn dependency:go-offline -B
 
-# Cache buster to ensure Railway compiles latest source commits
-ARG BUILD_VERSION=2026-10-01-fcm-v2
+# Cache buster for fresh source builds
+ARG BUILD_VERSION=2026-11-12-webpush
 COPY src src
 RUN mvn clean package -DskipTests
 

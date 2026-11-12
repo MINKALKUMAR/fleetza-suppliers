@@ -415,7 +415,7 @@ const AdminOverviewPage = () => {
             </div>
 
             {/* Quick Search */}
-            <div style={{ minWidth: '170px', maxWidth: '240px' }}>
+            <div className="admin-search-input-wrap">
               <input
                 type="text"
                 className="form-input"
@@ -429,7 +429,7 @@ const AdminOverviewPage = () => {
         </div>
 
         {/* Compact Filter Bar */}
-        <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap', marginBottom: '0.65rem' }}>
+        <div className="filter-chips-scroll" style={{ marginBottom: '0.65rem' }}>
           <button
             type="button"
             className={`filter-chip ${supplierFilter === 'ALL' ? 'active' : ''}`}
@@ -750,7 +750,7 @@ const AdminOverviewPage = () => {
         </div>
 
         {/* Compact Add City Bar */}
-        <form onSubmit={handleAddCity} style={{ display: 'flex', gap: '0.4rem', marginBottom: '0.65rem', maxWidth: '480px' }}>
+        <form onSubmit={handleAddCity} className="admin-inline-form">
           <input
             type="text"
             className="form-input"
@@ -775,7 +775,7 @@ const AdminOverviewPage = () => {
         {cityRows.length === 0 ? (
           <p className="empty-state" style={{ padding: '0.75rem 0', fontSize: '0.78rem' }}>No cities configured.</p>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: '0.45rem' }}>
+          <div className="admin-master-city-grid">
             {cityRows.map((row) => (
               <div
                 key={row.name}
@@ -860,7 +860,7 @@ const AdminOverviewPage = () => {
         </div>
 
         {/* Compact Add Group Form */}
-        <form onSubmit={handleAddGroup} style={{ display: 'flex', gap: '0.4rem', marginBottom: '0.65rem', maxWidth: '480px' }}>
+        <form onSubmit={handleAddGroup} className="admin-inline-form">
           <input
             type="text"
             className="form-input"
@@ -885,7 +885,7 @@ const AdminOverviewPage = () => {
         {groupRows.length === 0 ? (
           <p className="empty-state" style={{ padding: '0.75rem 0', fontSize: '0.78rem' }}>No vehicle groups configured.</p>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '0.45rem' }}>
+          <div className="admin-master-group-grid">
             {groupRows.map((grp) => (
               <div
                 key={grp.name}
@@ -939,7 +939,7 @@ const AdminOverviewPage = () => {
           <div className="admin-step-number">
             <ZapIcon size={18} color="#f59e0b" />
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', flexWrap: 'wrap', gap: '0.45rem' }}>
             <h2 className="admin-step-title">Live Dispatch Queue & Status</h2>
             <Link
               to="/admin/requests"

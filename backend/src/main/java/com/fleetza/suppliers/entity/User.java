@@ -65,9 +65,6 @@ public class User {
     @Column(name = "is_online")
     private Boolean isOnline = false;
 
-    @Column(name = "fcm_token", length = 512)
-    private String fcmToken;
-
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",
@@ -264,13 +261,5 @@ public class User {
 
     public void setIsOnline(Boolean isOnline) {
         this.isOnline = isOnline;
-    }
-
-    public String getFcmToken() {
-        return fcmToken;
-    }
-
-    public void setFcmToken(String fcmToken) {
-        this.fcmToken = fcmToken;
     }
 }

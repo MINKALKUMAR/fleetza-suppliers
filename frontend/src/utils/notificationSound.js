@@ -217,107 +217,186 @@ if (typeof window !== 'undefined') {
   unlockEvents.forEach((ev) => window.addEventListener(ev, handleUserInteract, { passive: true }));
 }
 
-// 6. System Notification Permissions & Dispatch
-export const requestNotificationPermission = async () => {
-  if (typeof window === 'undefined') return 'denied';
-  
-  // Proactively unlock AudioContext on this call
+import { pushApi } from '../api/pushApi';
+
+// 6. Web Push (VAPID) + System Notification Permissions & Dispatch
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
+
+function uint8ArrayToBase64Url(buffer) {
+  if (!buffer) return '';
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return window.btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+export const isPushSupported = () => {
+  if (typeof window === 'undefined') return false;
+  return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+};
+
+export const isStandalonePwa = () => {
+  if (typeof window === 'undefined') return false;
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+};
+
+export const isIosDevice = () => {
+  if (typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent || '';
+  return /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+};
+
+export const getExistingPushSubscription = async () => {
+  if (!isPushSupported()) return null;
+  try {
+    const registration = await navigator.serviceWorker.ready;
+    return await registration.pushManager.getSubscription();
+  } catch {
+    return null;
+  }
+};
+
+export const subscribeToWebPush = async ({ interactive = false } = {}) => {
+  if (typeof window === 'undefined') {
+    return { status: 'unsupported', subscribed: false, configured: false };
+  }
+
   unlockAudioContext();
 
-  // 6A. Native Capacitor Android FCM Push Registration
+  if (isIosDevice() && !isStandalonePwa()) {
+    return {
+      status: 'ios-install-required',
+      subscribed: false,
+      configured: true,
+      reason: 'On iPhone/iPad, tap Share and "Add to Home Screen" first to enable background Web Push.'
+    };
+  }
+
+  if (!('Notification' in window)) {
+    return { status: 'unsupported', subscribed: false, configured: false };
+  }
+
+  let permission = Notification.permission;
+  if (permission === 'default') {
+    if (!interactive) {
+      return { status: 'default', subscribed: false, configured: true };
+    }
+    try {
+      permission = await Notification.requestPermission();
+    } catch {
+      permission = Notification.permission;
+    }
+  }
+
+  if (permission !== 'granted') {
+    window.dispatchEvent(new CustomEvent('fleetza:push-status-changed'));
+    return { status: permission, subscribed: false, configured: true };
+  }
+
+  if (!isPushSupported()) {
+    window.dispatchEvent(new CustomEvent('fleetza:push-status-changed'));
+    return { status: 'granted', subscribed: false, configured: false, reason: 'PushManager not supported by browser' };
+  }
+
   try {
-    const { PushNotifications } = await import('@capacitor/push-notifications');
-    if (PushNotifications) {
-      const permStatus = await PushNotifications.checkPermissions();
-      let receive = permStatus.receive;
-      if (receive === 'prompt' || receive === 'prompt-with-rationale') {
-        const req = await PushNotifications.requestPermissions();
-        receive = req.receive;
-      }
+    const keyRes = await pushApi.getVapidPublicKey();
+    const configured = Boolean(keyRes?.data?.configured);
+    const publicKey = keyRes?.data?.publicKey;
 
-      if (receive === 'granted') {
-        // Create high-priority duty notification channel on Android with loud custom ringtone
+    if (!configured || !publicKey) {
+      window.dispatchEvent(new CustomEvent('fleetza:push-status-changed'));
+      return {
+        status: 'granted',
+        subscribed: false,
+        configured: false,
+        reason: 'VAPID keys are not configured on the server yet (/etc/fleetza/supplier.env).'
+      };
+    }
+
+    let registration = await navigator.serviceWorker.getRegistration('/');
+    if (!registration) {
+      registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+    }
+    await navigator.serviceWorker.ready;
+
+    let subscription = await registration.pushManager.getSubscription();
+    if (subscription && subscription.options?.applicationServerKey) {
+      const existingKey = uint8ArrayToBase64Url(subscription.options.applicationServerKey);
+      if (existingKey && existingKey !== publicKey.trim()) {
         try {
-          await PushNotifications.createChannel({
-            id: 'fleetza_duty_call',
-            name: 'Fleetza Urgent Duty Ring',
-            description: 'Loud telephone-style ringing alerts for taxi duty requests',
-            importance: 5, // IMPORTANCE_HIGH (makes loud ring sound and displays heads-up banner)
-            visibility: 1, // VISIBILITY_PUBLIC (shows on lockscreen)
-            sound: 'fleetza_duty_ring',
-            vibration: true,
-            lights: true,
-            lightColor: '#f59e0b'
-          });
+          await subscription.unsubscribe();
         } catch {}
-
-        // Attach listeners BEFORE register() so token is guaranteed to be captured
-        PushNotifications.removeAllListeners();
-
-        PushNotifications.addListener('registration', async (token) => {
-          if (token && token.value) {
-            try {
-              const { authApi } = await import('../api/authApi');
-              await authApi.updateFcmToken(token.value);
-            } catch {}
-          }
-        });
-
-        PushNotifications.addListener('registrationError', (error) => {
-          console.error('FCM registration error:', error);
-        });
-
-        PushNotifications.addListener('pushNotificationReceived', (notification) => {
-          // Play duty chime when push arrives
-          playSupplierDutyChime();
-        });
-
-        PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
-          if (typeof window !== 'undefined') {
-            window.location.href = '/supplier/dashboard';
-          }
-        });
-
-        await PushNotifications.register();
-        return 'granted';
+        subscription = null;
       }
     }
-  } catch (nativeErr) {
-    // Falls back to Web Notifications if running on standard web browser
-  }
 
-  // 6B. Standard Web Browser Notifications Fallback
-  if ('Notification' in window) {
-    if (Notification.permission === 'default') {
+    if (!subscription) {
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(publicKey.trim())
+      });
+    }
+
+    const subJson = subscription.toJSON();
+    await pushApi.subscribe(subJson);
+    window.dispatchEvent(new CustomEvent('fleetza:push-status-changed'));
+
+    return { status: 'granted', subscribed: true, configured: true, subscription: subJson };
+  } catch (err) {
+    console.warn('Web Push subscription warning:', err?.message || err);
+    window.dispatchEvent(new CustomEvent('fleetza:push-status-changed'));
+    return { status: 'granted', subscribed: false, configured: true, reason: err?.message || 'Subscription failed' };
+  }
+};
+
+export const unsubscribeFromWebPush = async () => {
+  try {
+    const sub = await getExistingPushSubscription();
+    if (sub) {
+      const endpoint = sub.endpoint;
+      await sub.unsubscribe();
       try {
-        const result = await Notification.requestPermission();
-        return result;
-      } catch {
-        return Notification.permission;
-      }
+        await pushApi.unsubscribe(endpoint);
+      } catch {}
     }
-    return Notification.permission;
+  } catch {}
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('fleetza:push-status-changed'));
   }
-  return 'unsupported';
+};
+
+export const requestNotificationPermission = async () => {
+  const res = await subscribeToWebPush({ interactive: true });
+  return res.status;
 };
 
 export const showDutySystemNotification = (requestData = {}) => {
   if (typeof window === 'undefined' || !('Notification' in window)) return;
   if (Notification.permission !== 'granted') return;
 
-  const title = '🚕 New Duty Dispatch Available!';
+  const title = 'New Duty Dispatch Available!';
   const body = requestData.dutyType
     ? `Duty: ${requestData.dutyType} | Date: ${requestData.pickupDate || 'Today'} ${requestData.pickupTime || ''} | Tap to view & respond`
     : 'New duty assigned to your vehicle! Review details in your Fleetza portal.';
 
-  // Attempt to deliver via Service Worker for background persistence on mobile
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.ready.then((reg) => {
       try {
         reg.showNotification(title, {
           body,
-          icon: '/pwa-icon.svg',
-          badge: '/pwa-icon.svg',
+          icon: '/pwa-icon-192.png',
+          badge: '/pwa-icon-192.png',
           vibrate: [500, 200, 500, 200, 500],
           data: { url: '/supplier/dashboard' },
           requireInteraction: true,
@@ -325,7 +404,6 @@ export const showDutySystemNotification = (requestData = {}) => {
           renotify: true
         });
       } catch (e) {
-        // Fallback to postMessage
         if (reg.active) {
           reg.active.postMessage({ type: 'DUTY_ALERT', title, body });
         }
@@ -334,8 +412,8 @@ export const showDutySystemNotification = (requestData = {}) => {
       try {
         new Notification(title, {
           body,
-          icon: '/pwa-icon.svg',
-          badge: '/pwa-icon.svg',
+          icon: '/pwa-icon-192.png',
+          badge: '/pwa-icon-192.png',
           vibrate: [500, 200, 500, 200, 500],
           requireInteraction: true,
           tag: 'fleetza-duty-alert',
@@ -349,8 +427,8 @@ export const showDutySystemNotification = (requestData = {}) => {
   try {
     new Notification(title, {
       body,
-      icon: '/pwa-icon.svg',
-      badge: '/pwa-icon.svg',
+      icon: '/pwa-icon-192.png',
+      badge: '/pwa-icon-192.png',
       vibrate: [500, 200, 500, 200, 500],
       requireInteraction: true,
       tag: 'fleetza-duty-alert',

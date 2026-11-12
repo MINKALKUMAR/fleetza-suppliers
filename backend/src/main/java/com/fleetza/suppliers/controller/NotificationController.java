@@ -6,12 +6,14 @@ import com.fleetza.suppliers.security.UserPrincipal;
 import com.fleetza.suppliers.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/notifications")
@@ -20,12 +22,20 @@ public class NotificationController {
     @Autowired
     private NotificationService notificationService;
 
+    private boolean isAdminOrDispatcher(UserPrincipal currentUser) {
+        return currentUser != null && currentUser.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")
+                        || a.getAuthority().equals("ROLE_SUPER_ADMIN")
+                        || a.getAuthority().equals("ROLE_DISPATCHER"));
+    }
+
     @GetMapping
     public ResponseEntity<ApiResponse<List<Notification>>> getNotifications(
             @AuthenticationPrincipal UserPrincipal currentUser,
             @RequestParam(required = false) String recipientId) {
 
-        String targetId = recipientId;
+        boolean isAdmin = isAdminOrDispatcher(currentUser);
+        String targetId = isAdmin ? recipientId : null;
         if (targetId == null && currentUser != null) {
             targetId = currentUser.getId().toString();
         }
@@ -35,9 +45,6 @@ public class NotificationController {
             result.addAll(notificationService.getNotifications(targetId));
         }
 
-        // If the user is admin, also include notifications directed to 'admin-1' or 'admin'
-        boolean isAdmin = currentUser != null && currentUser.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
         if (isAdmin && !"admin-1".equals(targetId)) {
             for (Notification n : notificationService.getNotifications("admin-1")) {
                 if (result.stream().noneMatch(existing -> existing.getId().equals(n.getId()))) {
@@ -51,7 +58,17 @@ public class NotificationController {
     }
 
     @PatchMapping("/{id}/read")
-    public ResponseEntity<ApiResponse<Notification>> markAsRead(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Notification>> markAsRead(
+            @AuthenticationPrincipal UserPrincipal currentUser,
+            @PathVariable Long id) {
+
+        Notification existing = notificationService.findById(id);
+        boolean isAdmin = isAdminOrDispatcher(currentUser);
+        boolean isOwner = currentUser != null && Objects.equals(existing.getRecipientId(), currentUser.getId().toString());
+        if (!isAdmin && !isOwner) {
+            throw new AccessDeniedException("You can only mark your own notifications as read");
+        }
+
         Notification notification = notificationService.markAsRead(id);
         return ResponseEntity.ok(ApiResponse.success("Notification marked as read", notification));
     }
@@ -61,7 +78,8 @@ public class NotificationController {
             @AuthenticationPrincipal UserPrincipal currentUser,
             @RequestParam(required = false) String recipientId) {
 
-        String targetId = recipientId;
+        boolean isAdmin = isAdminOrDispatcher(currentUser);
+        String targetId = isAdmin ? recipientId : null;
         if (targetId == null && currentUser != null) {
             targetId = currentUser.getId().toString();
         }
@@ -70,8 +88,6 @@ public class NotificationController {
             notificationService.markAllAsRead(targetId);
         }
 
-        boolean isAdmin = currentUser != null && currentUser.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
         if (isAdmin) {
             notificationService.markAllAsRead("admin-1");
         }

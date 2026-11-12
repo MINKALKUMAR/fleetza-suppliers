@@ -329,7 +329,7 @@ const FleetManagementPage = () => {
               required
             />
 
-            <div className="full-span" style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '0.75rem' }}>
+            <div className="full-span responsive-form-actions">
               <Button type="button" variant="outline" onClick={() => setAddOpen(false)}>
                 Cancel
               </Button>
@@ -539,19 +539,7 @@ const FleetManagementPage = () => {
 
       {/* Load More & Pagination Bar for high fleet volume */}
       {filteredVehicles.length > 0 && (
-        <div style={{
-          marginTop: '1.25rem',
-          background: '#ffffff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '8px',
-          padding: '0.85rem 1.25rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '0.75rem',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.03)'
-        }}>
+        <div className="pagination-bar">
           <div style={{ fontSize: '0.85rem', color: '#475569' }}>
             Showing <strong style={{ color: '#0f172a' }}>{displayedVehicles.length}</strong> of{' '}
             <strong style={{ color: '#0f172a' }}>{filteredVehicles.length}</strong> vehicles
@@ -560,7 +548,7 @@ const FleetManagementPage = () => {
             )}
           </div>
 
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <div className="pagination-actions">
             {visibleCount < filteredVehicles.length ? (
               <>
                 <button
@@ -645,14 +633,19 @@ const FleetManagementPage = () => {
           }}
         >
           <section className="edit-modal" role="dialog" aria-modal="true">
-            <div className="panel-heading">
-              <div>
+            <div className="modal-header">
+              <div className="modal-header-title-wrap">
                 <span className="eyebrow">Vehicle Registry</span>
-                <h2>Edit {editing.name} ({editing.number})</h2>
+                <h2 style={{ fontSize: '1.15rem', margin: '0.15rem 0 0' }}>Edit {editing.name} ({editing.number})</h2>
               </div>
-              <Button size="sm" variant="outline" onClick={() => setEditing(null)}>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setEditing(null)}
+                aria-label="Close modal"
+              >
                 <XIcon size={16} />
-              </Button>
+              </button>
             </div>
             <form className="supplier-compact-form" onSubmit={saveEdit}>
               <div className="form-group">

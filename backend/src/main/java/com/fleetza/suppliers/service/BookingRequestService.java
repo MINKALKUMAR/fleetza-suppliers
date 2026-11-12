@@ -34,7 +34,7 @@ public class BookingRequestService {
     private UserRepository userRepository;
 
     @Autowired
-    private FcmPushService fcmPushService;
+    private WebPushService webPushService;
 
     @Transactional(readOnly = true)
     public List<BookingRequest> getBookingRequests(Long supplierId) {
@@ -93,27 +93,37 @@ public class BookingRequestService {
                 saved.getId()
         );
 
-        // Send High-Priority Instant Waking Cloud Push via Firebase (FCM)
+        // Send Zero-Cost Browser Web Push (VAPID) to supplier's subscribed browsers/PWAs
         try {
-            User supplierUser = userRepository.findById(vehicle.getSupplierId()).orElse(null);
-            if (supplierUser != null && supplierUser.getFcmToken() != null && !supplierUser.getFcmToken().isBlank()) {
-                Map<String, String> data = new HashMap<>();
-                data.put("bookingId", String.valueOf(saved.getId()));
-                data.put("dutyType", saved.getDutyType() != null ? saved.getDutyType() : "8/80");
-                data.put("pickupDate", saved.getPickupDate() != null ? saved.getPickupDate() : "");
-                data.put("pickupTime", saved.getPickupTime() != null ? saved.getPickupTime() : "");
-                data.put("vehicleNumber", vehicle.getNumber());
-                data.put("pickupLocation", saved.getPickupLocation() != null ? saved.getPickupLocation() : "");
+            Map<String, Object> data = new HashMap<>();
+            data.put("type", "BOOKING_REQUEST");
+            data.put("bookingId", saved.getId());
+            data.put("dutyType", saved.getDutyType() != null ? saved.getDutyType() : "8/80");
+            data.put("pickupDate", saved.getPickupDate() != null ? saved.getPickupDate() : "");
+            data.put("pickupTime", saved.getPickupTime() != null ? saved.getPickupTime() : "");
+            data.put("vehicleNumber", vehicle.getNumber());
+            data.put("pickupLocation", saved.getPickupLocation() != null ? saved.getPickupLocation() : "");
 
-                fcmPushService.sendDutyDispatchPush(
-                        supplierUser.getFcmToken(),
-                        "🚕 Urgent Duty Dispatch!",
-                        "New Duty: " + saved.getDutyType() + " for " + vehicle.getName() + " (" + vehicle.getNumber() + "). Tap to accept!",
-                        data
-                );
-            }
-        } catch (Exception e) {
-            // Push notification failure should not block transaction
+            String pushTitle = "New Duty Dispatch · " + vehicle.getNumber();
+            String pushBody = String.format(
+                    "%s (%s) · %s %s · %s. Tap to Accept or Decline.",
+                    vehicle.getName(),
+                    saved.getDutyType(),
+                    saved.getPickupDate() != null && !saved.getPickupDate().isBlank() ? saved.getPickupDate() : "Today",
+                    saved.getPickupTime() != null ? saved.getPickupTime() : "",
+                    saved.getPickupLocation() != null && !saved.getPickupLocation().isBlank() ? saved.getPickupLocation() : "Open portal for pickup"
+            ).trim();
+
+            webPushService.sendPushToUserAsync(
+                    vehicle.getSupplierId(),
+                    pushTitle,
+                    pushBody,
+                    "/supplier/dashboard",
+                    "fleetza-duty-" + saved.getId(),
+                    data
+            );
+        } catch (Exception ignored) {
+            // Push notification failure should not block booking transaction
         }
 
         return saved;
@@ -144,6 +154,29 @@ public class BookingRequestService {
                 requestId
         );
 
+        try {
+            User supplierUser = booking.getSupplierId() != null
+                    ? userRepository.findById(booking.getSupplierId()).orElse(null)
+                    : null;
+            String supplierLabel = supplierUser != null ? supplierUser.getFullName() : "Supplier";
+            String cityLabel = (supplierUser != null && supplierUser.getCity() != null) ? supplierUser.getCity() : "";
+            String vehicleLabel = vehicle != null ? (vehicle.getName() + " (" + vehicle.getNumber() + ")") : "Vehicle";
+
+            Map<String, Object> adminData = new HashMap<>();
+            adminData.put("type", "REQUEST_UPDATE");
+            adminData.put("bookingId", saved.getId());
+            adminData.put("status", cleanStatus);
+
+            webPushService.sendPushToAdminsAsync(
+                    isConfirmed ? "Duty Accepted · " + (vehicle != null ? vehicle.getNumber() : "") : "Duty Declined · " + (vehicle != null ? vehicle.getNumber() : ""),
+                    supplierLabel + (cityLabel.isBlank() ? "" : " (" + cityLabel + ")") + " " + (isConfirmed ? "accepted" : "declined") + " " + vehicleLabel,
+                    "/admin/requests",
+                    "fleetza-resp-" + saved.getId(),
+                    adminData
+            );
+        } catch (Exception ignored) {
+        }
+
         return saved;
     }
 
@@ -167,6 +200,22 @@ public class BookingRequestService {
                 "A supplier marked the duty complete and the vehicle is available again.",
                 requestId
         );
+
+        try {
+            Map<String, Object> adminData = new HashMap<>();
+            adminData.put("type", "DUTY_COMPLETED");
+            adminData.put("bookingId", saved.getId());
+
+            String vehicleLabel = vehicle != null ? (vehicle.getName() + " (" + vehicle.getNumber() + ")") : "Vehicle";
+            webPushService.sendPushToAdminsAsync(
+                    "Duty Completed · " + (vehicle != null ? vehicle.getNumber() : "Free Car"),
+                    vehicleLabel + " finished its duty and is Available again.",
+                    "/admin/requests",
+                    "fleetza-complete-" + saved.getId(),
+                    adminData
+            );
+        } catch (Exception ignored) {
+        }
 
         return saved;
     }

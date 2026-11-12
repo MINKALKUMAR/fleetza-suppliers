@@ -1,46 +1,44 @@
 import React from 'react';
-import {
-  Car,
-  CheckCircle,
-  XCircle,
-  Check,
-  X,
-  AlertTriangle,
-  Siren,
-  Bell,
-  MapPin,
-  Calendar,
-  Clock,
-  Phone,
-  RefreshCw,
-  Volume2,
-  VolumeX,
-  User,
-  Users,
-  KeyRound,
-  Lock,
-  Plus,
-  Trash2,
-  LogOut,
-  LayoutDashboard,
-  Zap,
-  Flag,
-  MessageSquare,
-  Sliders,
-  Search,
-  ArrowRight,
-  ExternalLink,
-  Shield,
-  FileText,
-  Building,
-  Navigation,
-  Send,
-  Info,
-  Eye,
-  EyeOff,
-  Edit3,
-  Copy
-} from 'lucide-react';
+import Car from 'lucide-react/dist/esm/icons/car.mjs';
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle.mjs';
+import XCircle from 'lucide-react/dist/esm/icons/x-circle.mjs';
+import Check from 'lucide-react/dist/esm/icons/check.mjs';
+import X from 'lucide-react/dist/esm/icons/x.mjs';
+import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle.mjs';
+import Siren from 'lucide-react/dist/esm/icons/siren.mjs';
+import Bell from 'lucide-react/dist/esm/icons/bell.mjs';
+import MapPin from 'lucide-react/dist/esm/icons/map-pin.mjs';
+import Calendar from 'lucide-react/dist/esm/icons/calendar.mjs';
+import Clock from 'lucide-react/dist/esm/icons/clock.mjs';
+import Phone from 'lucide-react/dist/esm/icons/phone.mjs';
+import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw.mjs';
+import Volume2 from 'lucide-react/dist/esm/icons/volume-2.mjs';
+import VolumeX from 'lucide-react/dist/esm/icons/volume-x.mjs';
+import User from 'lucide-react/dist/esm/icons/user.mjs';
+import Users from 'lucide-react/dist/esm/icons/users.mjs';
+import KeyRound from 'lucide-react/dist/esm/icons/key-round.mjs';
+import Lock from 'lucide-react/dist/esm/icons/lock.mjs';
+import Plus from 'lucide-react/dist/esm/icons/plus.mjs';
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2.mjs';
+import LogOut from 'lucide-react/dist/esm/icons/log-out.mjs';
+import LayoutDashboard from 'lucide-react/dist/esm/icons/layout-dashboard.mjs';
+import Zap from 'lucide-react/dist/esm/icons/zap.mjs';
+import Flag from 'lucide-react/dist/esm/icons/flag.mjs';
+import MessageSquare from 'lucide-react/dist/esm/icons/message-square.mjs';
+import Sliders from 'lucide-react/dist/esm/icons/sliders.mjs';
+import Search from 'lucide-react/dist/esm/icons/search.mjs';
+import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right.mjs';
+import ExternalLink from 'lucide-react/dist/esm/icons/external-link.mjs';
+import Shield from 'lucide-react/dist/esm/icons/shield.mjs';
+import FileText from 'lucide-react/dist/esm/icons/file-text.mjs';
+import Building from 'lucide-react/dist/esm/icons/building.mjs';
+import Navigation from 'lucide-react/dist/esm/icons/navigation.mjs';
+import Send from 'lucide-react/dist/esm/icons/send.mjs';
+import Info from 'lucide-react/dist/esm/icons/info.mjs';
+import Eye from 'lucide-react/dist/esm/icons/eye.mjs';
+import EyeOff from 'lucide-react/dist/esm/icons/eye-off.mjs';
+import Edit3 from 'lucide-react/dist/esm/icons/edit-3.mjs';
+import Copy from 'lucide-react/dist/esm/icons/copy.mjs';
 
 /**
  * Fleetza Theme Matching Icons

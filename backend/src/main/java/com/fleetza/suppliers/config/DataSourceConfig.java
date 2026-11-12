@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 
 import javax.sql.DataSource;
 import java.net.URI;
@@ -15,6 +16,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 
 @Configuration
+@Profile({"mysql", "default"})
 public class DataSourceConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(DataSourceConfig.class);
@@ -55,8 +57,11 @@ public class DataSourceConfig {
     @Value("${DB_USERNAME:root}")
     private String defaultUsername;
 
-    @Value("${DB_PASSWORD:@bhishekSQL8755}")
+    @Value("${DB_PASSWORD:}")
     private String defaultPassword;
+
+    @Value("${app.db.allow-h2-fallback:false}")
+    private boolean allowH2Fallback;
 
     @Bean
     @Primary
@@ -132,8 +137,8 @@ public class DataSourceConfig {
             config.setMaxLifetime(1800000);
             config.setConnectionTimeout(30000);
             return new HikariDataSource(config);
-        } else {
-            logger.warn("FALLING BACK TO RESILIENT IN-MEMORY DATABASE so application stays online without crashing!");
+        } else if (allowH2Fallback) {
+            logger.warn("FALLING BACK TO IN-MEMORY H2 DATABASE (DB_ALLOW_H2_FALLBACK=true). Data will not persist across restarts.");
             config.setDriverClassName("org.h2.Driver");
             config.setJdbcUrl("jdbc:h2:mem:fleetza_db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL");
             config.setUsername("sa");
@@ -141,6 +146,11 @@ public class DataSourceConfig {
             config.setMaximumPoolSize(20);
             config.setMinimumIdle(5);
             return new HikariDataSource(config);
+        } else {
+            throw new IllegalStateException(
+                    "Unable to connect to MySQL database at " + targetHost + ":" + targetPort + "/" + targetDb +
+                    ". Verify MySQL is running and DB_USERNAME/DB_PASSWORD are configured in /etc/fleetza/supplier.env."
+            );
         }
     }
 }

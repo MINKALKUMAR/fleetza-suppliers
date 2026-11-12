@@ -7,7 +7,7 @@ import { notificationApi } from '../api/notificationApi';
 import { cityApi, DEFAULT_CITIES } from '../api/cityApi';
 import { vehicleGroupApi, DEFAULT_VEHICLE_GROUPS } from '../api/vehicleGroupApi';
 import {
-  requestNotificationPermission,
+  subscribeToWebPush,
   showDutySystemNotification,
   startSupplierDutyAlert,
   stopNotificationSound,
@@ -172,21 +172,36 @@ export const AuthProvider = ({ children }) => {
     initAuth();
   }, []);
 
-  // Polling every 5 seconds for smooth operations across all tabs
+  // Polling + Service Worker Web Push instant sync
   useEffect(() => {
     if (!token || !user) return;
 
-    // Prompt for notification permissions for suppliers
-    if (user.roles?.some((r) => r === 'ROLE_SUPPLIER' || r === 'SUPPLIER')) {
-      requestNotificationPermission();
-    }
+    // Silently sync browser Web Push (VAPID) subscription if permission is already granted
+    subscribeToWebPush({ interactive: false }).catch(() => {});
 
     refreshAllData();
 
     const handleVisibilityChange = () => {
-      refreshAllData();
+      if (document.visibilityState === 'visible') {
+        refreshAllData();
+      }
     };
     document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    const handleSwMessage = (event) => {
+      if (event.data?.type === 'SW_PUSH_RECEIVED') {
+        const pushType = event.data?.payload?.data?.type;
+        if (pushType === 'BOOKING_REQUEST') {
+          playSupplierDutyChime();
+        } else {
+          playNotificationChime();
+        }
+        refreshAllData();
+      }
+    };
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', handleSwMessage);
+    }
 
     // Continuous polling every 4 seconds, ALWAYS active in foreground and background
     const interval = setInterval(() => {
@@ -196,6 +211,9 @@ export const AuthProvider = ({ children }) => {
     return () => {
       clearInterval(interval);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.removeEventListener('message', handleSwMessage);
+      }
     };
   }, [token, user?.id, refreshAllData]);
 

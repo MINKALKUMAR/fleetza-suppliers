@@ -35,22 +35,22 @@ const NotificationDetailModal = ({ notification, onClose, onRespond, onComplete 
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <section className="edit-modal" role="dialog" aria-modal="true" style={{ maxWidth: '520px' }}>
-        <div className="panel-heading">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+      <section className="edit-modal" role="dialog" aria-modal="true">
+        <div className="modal-header">
+          <div className="modal-header-title-wrap" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
             {notification.type === 'BOOKING_REQUEST' ? (
               <TaxiIcon size={24} color="#f59e0b" />
             ) : (
               <BellIcon size={24} color="#3b82f6" />
             )}
-            <div>
+            <div style={{ minWidth: 0 }}>
               <span className="eyebrow">Notification Details</span>
-              <h2 style={{ fontSize: '1.15rem', margin: 0 }}>{notification.title}</h2>
+              <h2 style={{ fontSize: '1.1rem', margin: 0 }}>{notification.title}</h2>
             </div>
           </div>
-          <Button size="sm" variant="outline" onClick={onClose} aria-label="Close modal">
+          <button type="button" className="modal-close-btn" onClick={onClose} aria-label="Close modal">
             <XIcon size={16} />
-          </Button>
+          </button>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.75rem' }}>
@@ -84,7 +84,7 @@ const NotificationDetailModal = ({ notification, onClose, onRespond, onComplete 
                 </div>
               )}
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', fontSize: 'var(--font-xs)', marginTop: '0.25rem' }}>
+              <div className="duty-detail-grid">
                 <div>
                   <strong>Duty Package:</strong>
                   <div style={{ color: 'var(--color-primary)', fontWeight: 700, fontSize: '0.85rem' }}>
@@ -156,7 +156,7 @@ const NotificationDetailModal = ({ notification, onClose, onRespond, onComplete 
 
           {/* Action buttons if supplier needs to respond */}
           {isSupplier && isPending && onRespond && (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.65rem' }}>
+            <div className="duty-detail-actions">
               <Button
                 variant="success"
                 size="lg"

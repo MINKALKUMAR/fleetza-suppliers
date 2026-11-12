@@ -5,11 +5,13 @@ import com.fleetza.suppliers.dto.request.UpdateSupplierRequest;
 import com.fleetza.suppliers.dto.response.ApiResponse;
 import com.fleetza.suppliers.dto.response.UserSummaryResponse;
 import com.fleetza.suppliers.enums.UserStatus;
+import com.fleetza.suppliers.security.UserPrincipal;
 import com.fleetza.suppliers.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,8 +24,22 @@ public class SupplierController {
     private UserService userService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<UserSummaryResponse>>> getSuppliers() {
-        return ResponseEntity.ok(ApiResponse.success("Suppliers retrieved successfully", userService.getSuppliers()));
+    public ResponseEntity<ApiResponse<List<UserSummaryResponse>>> getSuppliers(
+            @AuthenticationPrincipal UserPrincipal currentUser) {
+        boolean isAdminOrDispatcher = currentUser != null && currentUser.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")
+                        || a.getAuthority().equals("ROLE_SUPER_ADMIN")
+                        || a.getAuthority().equals("ROLE_DISPATCHER"));
+        if (isAdminOrDispatcher) {
+            return ResponseEntity.ok(ApiResponse.success("Suppliers retrieved successfully", userService.getSuppliers()));
+        }
+        if (currentUser == null) {
+            return ResponseEntity.ok(ApiResponse.success("Suppliers retrieved successfully", List.of()));
+        }
+        return ResponseEntity.ok(ApiResponse.success(
+                "Supplier profile retrieved successfully",
+                List.of(userService.getCurrentUserProfile(currentUser))
+        ));
     }
 
     @PostMapping

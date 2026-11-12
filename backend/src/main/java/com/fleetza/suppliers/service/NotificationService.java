@@ -20,6 +20,12 @@ public class NotificationService {
         return notificationRepository.findByRecipientIdOrderByCreatedAtDesc(recipientId);
     }
 
+    @Transactional(readOnly = true)
+    public Notification findById(Long id) {
+        return notificationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Notification", "id", id));
+    }
+
     @Transactional
     public Notification createNotification(String recipientId, String type, String title, String message, Long requestId) {
         Notification notification = new Notification(recipientId, type, title, message, requestId);

@@ -83,4 +83,45 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.data.username").value("admin"))
                 .andExpect(jsonPath("$.data.email").value("admin@fleetza.com"));
     }
+
+    @Test
+    @DisplayName("Should return database=UP and status=UP on /api/health")
+    void testHealthEndpoint() throws Exception {
+        mockMvc.perform(get("/api/health"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("UP"))
+                .andExpect(jsonPath("$.database").value("UP"));
+    }
+
+    @Test
+    @DisplayName("Should reject weak password aliases like admin123")
+    void testWeakAliasRejected() throws Exception {
+        LoginRequest loginRequest = new LoginRequest("admin", "admin123");
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("Should forbid supplier role from creating booking dispatches")
+    void testSupplierCannotCreateBooking() throws Exception {
+        LoginRequest loginRequest = new LoginRequest("supplier_demo", "Supplier@12345");
+
+        MvcResult result = mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String token = objectMapper.readTree(result.getResponse().getContentAsString())
+                .get("data").get("accessToken").asText();
+
+        mockMvc.perform(post("/api/bookings")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"vehicleId\":1}"))
+                .andExpect(status().isForbidden());
+    }
 }

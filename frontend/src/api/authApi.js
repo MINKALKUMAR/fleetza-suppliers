@@ -19,10 +19,5 @@ export const authApi = {
   logout: async () => {
     const response = await axiosClient.post('/auth/logout');
     return response.data;
-  },
-
-  updateFcmToken: async (token) => {
-    const response = await axiosClient.post('/auth/fcm-token', { token });
-    return response.data;
   }
 };

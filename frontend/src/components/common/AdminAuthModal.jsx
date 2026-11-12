@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
-import { Lock, Shield, X, Eye, EyeOff, AlertTriangle } from 'lucide-react';
+import Lock from 'lucide-react/dist/esm/icons/lock.mjs';
+import Shield from 'lucide-react/dist/esm/icons/shield.mjs';
+import X from 'lucide-react/dist/esm/icons/x.mjs';
+import Eye from 'lucide-react/dist/esm/icons/eye.mjs';
+import EyeOff from 'lucide-react/dist/esm/icons/eye-off.mjs';
+import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle.mjs';
 import Button from './Button';
 import { authApi } from '../../api/authApi';
 import { useAuth } from '../../context/AuthContext';
@@ -47,17 +52,12 @@ const AdminAuthModal = ({
         setIsVerifying(false);
         setError('Incorrect admin password. Action blocked.');
       }
-    } catch {
-      // Local fallback check if offline
-      const passClean = password.trim();
-      if (passClean === 'Admin@12345' || passClean === 'admin' || passClean === 'admin123' || passClean === 'Admin@123') {
-        setIsVerifying(false);
-        setPassword('');
-        setError('');
-        onConfirm();
-      } else {
-        setIsVerifying(false);
+    } catch (err) {
+      setIsVerifying(false);
+      if (err?.response?.status === 401 || err?.response?.status === 403) {
         setError('Incorrect admin password. Action blocked.');
+      } else {
+        setError('Unable to reach server to verify admin password. Please try again.');
       }
     }
   };
@@ -83,11 +83,11 @@ const AdminAuthModal = ({
       onClick={handleClose}
     >
       <div
+        className="edit-modal edit-modal--compact"
         style={{
           backgroundColor: '#ffffff',
-          borderRadius: '12px',
           width: '100%',
-          maxWidth: '420px',
+          padding: 0,
           boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
           overflow: 'hidden',
           animation: 'fleetzaModalPop 0.2s ease-out'
@@ -203,20 +203,13 @@ const AdminAuthModal = ({
             <div style={{ position: 'relative' }}>
               <input
                 type={showPassword ? 'text' : 'password'}
+                className="form-input"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter password (e.g. Admin@12345 or admin)"
+                placeholder="Enter password"
                 autoFocus
                 required
-                style={{
-                  width: '100%',
-                  padding: '0.55rem 2.25rem 0.55rem 0.75rem',
-                  fontSize: '0.85rem',
-                  borderRadius: '6px',
-                  border: '1px solid #cbd5e1',
-                  outline: 'none',
-                  boxSizing: 'border-box'
-                }}
+                style={{ paddingRight: '2.5rem' }}
               />
               <button
                 type="button"

@@ -1,0 +1,29 @@
+# /etc/systemd/system/fleetza-supplier.service
+# Install:
+#   sudo cp deploy/fleetza-supplier.service /etc/systemd/system/fleetza-supplier.service
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable fleetza-supplier
+#   sudo systemctl restart fleetza-supplier
+
+[Unit]
+Description=Fleetza Suppliers Backend (Spring Boot + Web Push VAPID)
+After=network.target mysql.service
+Wants=mysql.service
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/fleetza-supplier
+EnvironmentFile=/etc/fleetza/supplier.env
+ExecStart=/usr/bin/java -XX:+UseG1GC -Xms256m -Xmx512m -Djava.security.egd=file:/dev/./urandom -jar /opt/fleetza-supplier/app.jar
+SuccessExitStatus=143
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=fleetza-supplier
+
+[Install]
+WantedBy=multi-user.target
+

@@ -117,23 +117,10 @@ const SupplierDutyTopBanner = () => {
   return (
     <div
       onClick={handleUserScreenTap}
-      style={{
-        background: 'linear-gradient(135deg, #1e1b4b 0%, #311042 50%, #1e1b4b 100%)',
-        color: '#ffffff',
-        borderRadius: 'var(--radius-md, 8px)',
-        padding: '0.65rem 0.85rem',
-        marginBottom: '0.85rem',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '0.5rem',
-        boxShadow: '0 4px 18px rgba(220, 38, 38, 0.35)',
-        border: '1.5px solid #ef4444',
-        animation: 'fleetzaToastSlideIn 0.25s ease forwards',
-        cursor: 'default'
-      }}
+      className="top-duty-urgent-card"
     >
       {/* Top Banner Row: Alarm Indicator & Audio Unblock Alert */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.4rem' }}>
+      <div className="top-duty-urgent-top">
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
           <span
             style={{
@@ -161,7 +148,7 @@ const SupplierDutyTopBanner = () => {
               color: '#000000',
               border: 'none',
               borderRadius: '4px',
-              padding: '0.2rem 0.6rem',
+              padding: '0.25rem 0.6rem',
               fontWeight: 800,
               fontSize: '0.74rem',
               cursor: 'pointer',
@@ -183,8 +170,8 @@ const SupplierDutyTopBanner = () => {
       </div>
 
       {/* Middle Row: Duty Details & Vehicle Information */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.65rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', fontSize: '0.82rem' }}>
+      <div className="top-duty-urgent-body">
+        <div className="top-duty-urgent-info">
           <div className="plate-badge" style={{ fontSize: '0.78rem', padding: '0.15rem 0.45rem' }}>
             <TaxiIcon size={13} color="#000000" />
             <span>{vehicle?.number || 'ASSIGNED TAXI'}</span>
@@ -207,14 +194,14 @@ const SupplierDutyTopBanner = () => {
           )}
 
           {activeRequest?.pickupLocation && (
-            <span style={{ color: '#93c5fd', display: 'inline-flex', alignItems: 'center', gap: 3, maxWidth: '240px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <span className="top-duty-route-pill" style={{ color: '#93c5fd' }}>
               <MapPinIcon size={12} color="#60a5fa" />
               <span>{activeRequest.pickupLocation}</span>
             </span>
           )}
 
           {activeRequest?.dropLocation && (
-            <span style={{ color: '#a7f3d0', display: 'inline-flex', alignItems: 'center', gap: 3, maxWidth: '240px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <span className="top-duty-route-pill" style={{ color: '#a7f3d0' }}>
               <span>🏁</span>
               <span>{activeRequest.dropLocation}</span>
             </span>
@@ -228,49 +215,41 @@ const SupplierDutyTopBanner = () => {
         </div>
 
         {/* Right Action Buttons: Big Touch-Friendly Accept & Decline */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexShrink: 0 }}>
+        <div className="top-duty-urgent-actions">
           {pendingRequests.length > 1 && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', marginRight: '0.25rem' }}>
+            <div className="top-duty-urgent-pager">
               <button
                 type="button"
-                onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : pendingRequests.length - 1))}
-                style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff', borderRadius: '4px', padding: '0.25rem 0.45rem', cursor: 'pointer', fontSize: '0.72rem' }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCurrentIndex((prev) => (prev > 0 ? prev - 1 : pendingRequests.length - 1));
+                }}
+                style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff', borderRadius: '4px', padding: '0.3rem 0.55rem', cursor: 'pointer', fontSize: '0.74rem' }}
                 title="Previous Duty"
               >
-                ◀
+                ◀ Prev
               </button>
               <button
                 type="button"
-                onClick={() => setCurrentIndex((prev) => (prev < pendingRequests.length - 1 ? prev + 1 : 0))}
-                style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff', borderRadius: '4px', padding: '0.25rem 0.45rem', cursor: 'pointer', fontSize: '0.72rem' }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCurrentIndex((prev) => (prev < pendingRequests.length - 1 ? prev + 1 : 0));
+                }}
+                style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff', borderRadius: '4px', padding: '0.3rem 0.55rem', cursor: 'pointer', fontSize: '0.74rem' }}
                 title="Next Duty"
               >
-                ▶
+                Next ▶
               </button>
             </div>
           )}
 
           <button
             type="button"
+            className="top-duty-accept-btn"
             disabled={actionLoading}
             onClick={(e) => {
               e.stopPropagation();
               handleRespond(activeRequest.id, 'CONFIRMED');
-            }}
-            style={{
-              background: '#16a34a',
-              border: 'none',
-              color: '#ffffff',
-              borderRadius: '4px',
-              padding: '0.4rem 0.85rem',
-              fontWeight: 800,
-              fontSize: '0.82rem',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 4,
-              minHeight: '36px',
-              boxShadow: '0 2px 8px rgba(22, 163, 74, 0.4)'
             }}
           >
             <CheckIcon size={15} />
@@ -279,24 +258,11 @@ const SupplierDutyTopBanner = () => {
 
           <button
             type="button"
+            className="top-duty-decline-btn"
             disabled={actionLoading}
             onClick={(e) => {
               e.stopPropagation();
               handleRespond(activeRequest.id, 'DECLINED');
-            }}
-            style={{
-              background: 'rgba(239, 68, 68, 0.25)',
-              border: '1.5px solid #ef4444',
-              color: '#fca5a5',
-              borderRadius: '4px',
-              padding: '0.4rem 0.75rem',
-              fontWeight: 700,
-              fontSize: '0.82rem',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 4,
-              minHeight: '36px'
             }}
           >
             <XIcon size={15} />

@@ -11,7 +11,7 @@ COPY backend/pom.xml .
 RUN mvn dependency:go-offline -B
 
 # Bust cache on new commits
-ARG BUILD_VERSION=2026-10-01-fcm
+ARG BUILD_VERSION=2026-11-12-webpush
 # Copy backend source and compile
 COPY backend/src src
 RUN mvn clean package -DskipTests

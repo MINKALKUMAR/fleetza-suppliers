@@ -2,6 +2,7 @@ import React from 'react';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/common/Button';
 import StatusBadge from '../../components/common/StatusBadge';
+import WebPushStatusControl from '../../components/common/WebPushStatusControl';
 import {
   BellIcon,
   TaxiIcon,
@@ -49,7 +50,7 @@ const NotificationsPage = () => {
           <h1>Duty & System Notifications</h1>
           <p>Real-time booking dispatch notices, trip updates, and operations messages.</p>
         </div>
-        <div style={{ display: 'flex', gap: '0.45rem', flexWrap: 'wrap', alignItems: 'center' }}>
+        <div className="admin-hero-actions">
           <button
             type="button"
             onClick={playNotificationChime}
@@ -101,6 +102,8 @@ const NotificationsPage = () => {
           )}
         </div>
       </div>
+
+      <WebPushStatusControl />
 
       <div className="card">
         {notifications.length === 0 ? (
@@ -203,7 +206,7 @@ const NotificationsPage = () => {
 
                   {/* Direct Action Buttons for Pending or Ongoing Duty */}
                   {isPending && (
-                    <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.65rem' }}>
+                    <div className="supplier-duty-actions-grid">
                       <button
                         type="button"
                         className="btn-top-accept"

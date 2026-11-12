@@ -323,20 +323,7 @@ const SupplierDashboardPage = () => {
             </div>
 
             {/* Quota Badge */}
-            <div
-              style={{
-                background: isQuotaFull ? '#fee2e2' : '#f0fdf4',
-                color: isQuotaFull ? '#991b1b' : '#166534',
-                border: '1px solid ' + (isQuotaFull ? '#fecaca' : '#bbf7d0'),
-                borderRadius: '6px',
-                padding: '0.4rem 0.75rem',
-                fontSize: '0.8rem',
-                fontWeight: 700,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 5
-              }}
-            >
+            <div className={`quota-pill-badge ${isQuotaFull ? 'is-full' : ''}`}>
               <span>Quota: {myVehicles.length} / {supplierQuota}</span>
             </div>
 
@@ -492,19 +479,19 @@ const SupplierDashboardPage = () => {
             if (e.target === e.currentTarget) setShowAddModal(false);
           }}
         >
-          <section className="edit-modal" role="dialog" aria-modal="true" style={{ maxWidth: '460px' }}>
-            <div className="panel-heading">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+          <section className="edit-modal edit-modal--compact" role="dialog" aria-modal="true">
+            <div className="modal-header">
+              <div className="modal-header-title-wrap" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
                 <TaxiIcon size={24} color="#f59e0b" />
                 <div>
                   <span className="eyebrow">Fleet Registration</span>
-                  <h2 style={{ fontSize: '1.2rem', margin: 0 }}>Register New Vehicle</h2>
+                  <h2 style={{ fontSize: '1.15rem', margin: 0 }}>Register New Vehicle</h2>
                 </div>
               </div>
               <button
                 type="button"
+                className="modal-close-btn"
                 onClick={() => setShowAddModal(false)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}
                 aria-label="Close"
               >
                 <XIcon size={18} />

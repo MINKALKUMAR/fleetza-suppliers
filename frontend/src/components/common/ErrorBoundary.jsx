@@ -80,7 +80,7 @@ class ErrorBoundary extends React.Component {
                 {this.state.error.message}
               </div>
             )}
-            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
               <button
                 type="button"
                 onClick={this.handleReset}

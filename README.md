@@ -23,9 +23,9 @@ React (Vite)  ──►  REST API (/api/*)  ──►  Spring Boot Controllers
 
 ---
 
-## 🏛️ Two Distinct Portals (Unified Architecture)
+## 🏛️ Two Distinct Portals (Unified Website + PWA Architecture)
 
-Fleetza is strictly organized into **TWO Dedicated Portals**:
+Fleetza is a **100% website-only** platform (installable PWA on Android, iOS Safari, and Windows/Mac desktops — zero Play Store, App Store, or Firebase dependencies) organized into **TWO Dedicated Portals**:
 
 1. **👑 Unified Operations Admin Panel (`/admin/...`)**:
    - Single central desk for dispatchers and fleet administrators.
@@ -33,22 +33,26 @@ Fleetza is strictly organized into **TWO Dedicated Portals**:
    - Master city controls, supplier password resets, and real-time availability monitor.
 
 2. **🚕 Fleet Supplier Portal (`/supplier/...`)**:
-   - Mobile-first web app and installable PWA for taxi partners and vehicle operators.
+   - Mobile-responsive web app and installable PWA for taxi partners and vehicle operators.
    - 1-Tap direct availability toggles (`Available` / `Booked`).
-   - High-decibel continuous siren alarm on incoming duty dispatches that loops until accepted or declined.
+   - High-decibel continuous siren alarm on incoming duty dispatches plus **₹0 Web Push (VAPID)** background alerts.
 
 ---
 
-## 🔑 All System Login Accounts & Passwords (Quick Reference)
+## 🔑 Default Admin & Demo Accounts
 
-Log in at `http://localhost:5173/login`:
+**In Production (`mysql` profile — `https://supplier.fleetza.in/login`):**
+- Only Roles, Master Cities, Master Vehicle Groups, and the `admin` account (`Admin@12345` or `ADMIN_INITIAL_PASSWORD` env var) are initialized on a fresh database (`SEED_DEMO_DATA=false`).
+- Demo supplier accounts and sample bookings are **disabled in production** — change the `admin` password right after first login at `/change-password`.
 
-| Portal & Account | Full Name / Partner | Username | Password | Convenient Aliases | Portal Access URL |
-|---|---|---|---|---|---|
-| **👑 Operations Admin (Single Admin Panel)** | Fleetza Operations Admin (WhatsApp: `8264083932`) | `admin` | `Admin@12345` | `admin` or `admin123` | `/admin/dashboard` |
-| **🚕 Supplier (Chandigarh)** | Rajinder Singh (Royal Cabs) | `supplier_demo` | `Supplier@12345` | `supplier` or `supplier123` | `/supplier/dashboard` |
-| **🚕 Supplier (Ludhiana)** | Harpreet Singh (Dhillon Travels) | `ludhiana_fleet` | `Supplier@12345` | `supplier` or `supplier123` | `/supplier/dashboard` |
-| **🚕 Supplier (Amritsar)** | Manpreet Kaur (Golden City) | `amritsar_cabs` | `Supplier@12345` | `supplier` or `supplier123` | `/supplier/dashboard` |
+**In Local Dev (`dev` profile — `SEED_DEMO_DATA=true`):**
+
+| Portal & Account | Full Name / Partner | Username | Password | Portal Access URL |
+|---|---|---|---|---|
+| **👑 Operations Admin (Single Admin Panel)** | Fleetza Operations Admin (WhatsApp: `8264083932`) | `admin` | `Admin@12345` | `/admin/dashboard` |
+| **🚕 Supplier (Chandigarh)** | Rajinder Singh (Royal Cabs) | `supplier_demo` | `Supplier@12345` | `/supplier/dashboard` |
+| **🚕 Supplier (Ludhiana)** | Harpreet Singh (Dhillon Travels) | `ludhiana_fleet` | `Supplier@12345` | `/supplier/dashboard` |
+| **🚕 Supplier (Amritsar)** | Manpreet Kaur (Golden City) | `amritsar_cabs` | `Supplier@12345` | `/supplier/dashboard` |
 
 > [!TIP]
 > **Admin Business WhatsApp & Support**:
@@ -71,9 +75,11 @@ The core operational objective of Fleetza is to ensure taxi suppliers **never mi
 2. **Device Vibration & Flashing Title**:
    - Pulses physical phone vibration (`[400ms, 200ms, 400ms, 200ms, 600ms]`) on every alarm burst.
    - Tab title flashes `🚨 URGENT: NEW DUTY ASSIGNED!` alternating with `⚡ FLEETZA ALARM RINGING!`.
-3. **Background & PWA Notifications**:
-   - Service worker displays persistent notifications (`requireInteraction: true`, vibration: `[500, 200, 500, 200, 500]`).
-   - Clicking notification directly focuses the Fleetza supplier app and triggers immediate duty banner view.
+3. **Background & Zero-Cost Web Push (VAPID) Notifications**:
+   - Free forever (`₹0`) standards-based VAPID Web Push backed by Spring Boot + MySQL + Nginx HTTPS (Certbot), with zero Firebase/SMS/WhatsApp API costs.
+   - Service worker (`public/sw.js`) displays persistent notifications (`requireInteraction: true`, vibration: `[500, 200, 500, 200, 500]`) even when the browser tab is closed or backgrounded.
+   - Clicking a notification focuses the Fleetza portal and navigates straight to the active duty/alert view.
+   - Installable PWA (`manifest.webmanifest`) on Android Chrome, Windows/Mac Edge & Chrome, and iOS 16.4+ Safari ("Add to Home Screen").
 4. **Auto-Unblock Engine**:
    - Modern browsers suspend audio context until a touch/gesture occurs. Any touch anywhere on the screen (or the pulsing `TAP TO HEAR LOUD ALARM` button) instantly unblocks the audio engine.
 
@@ -90,7 +96,12 @@ The core operational objective of Fleetza is to ensure taxi suppliers **never mi
 
 ---
 
-## 🚀 Going Live with MySQL Tomorrow
+## 🚀 Deploying to Hostinger VPS (`supplier.fleetza.in`)
+
+Full step-by-step instructions are in [DEPLOY_HOSTINGER_VPS.md](DEPLOY_HOSTINGER_VPS.md), including:
+1. DNS `A` record (`supplier` -> `187.127.176.189`).
+2. Generating free permanent VAPID keys with `node deploy/generate-vapid-keys.mjs` into `/etc/fleetza/supplier.env`.
+3. One-command build & Nginx/systemd/Certbot HTTPS setup via `sudo bash deploy/deploy-vps.sh`.
 
 Fleetza includes ready-to-use production MySQL support. To switch from dev (H2) to MySQL:
 

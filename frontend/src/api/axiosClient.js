@@ -1,18 +1,6 @@
 import axios from 'axios';
 
-// Production Railway Backend URL for Android App & native wrappers
-const RAILWAY_BACKEND_URL = 'https://fleetza-suppliers-production.up.railway.app/api';
-
-// Check if running inside native Android / Capacitor container or standard web
-const isCapacitorOrNative =
-  (typeof window !== 'undefined' && (
-    window.location.protocol === 'capacitor:' ||
-    window.location.protocol === 'ionic:' ||
-    window.location.hostname === 'localhost' && window.location.port === '' ||
-    Boolean(window.Capacitor?.isNativePlatform && window.Capacitor.isNativePlatform())
-  ));
-
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || (isCapacitorOrNative ? RAILWAY_BACKEND_URL : '/api');
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api';
 
 const axiosClient = axios.create({
   baseURL: apiBaseUrl,
@@ -39,7 +27,6 @@ axiosClient.interceptors.response.use(
   (error) => {
     if (error.response && error.response.status === 401) {
       const isLoginRequest = error.config?.url?.includes('/auth/login');
-      // Don't auto-redirect if already on login page or if it's the login request itself
       if (!isLoginRequest && !window.location.pathname.includes('/login')) {
         localStorage.removeItem('fleetza_token');
         localStorage.removeItem('fleetza_user');
