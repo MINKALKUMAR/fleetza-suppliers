@@ -7,7 +7,7 @@ set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 APP_DIR="/opt/fleetza-supplier"
-WEB_DIR="/var/www/supplier.fleetza.in"
+WEB_DIR="$REPO_DIR/frontend/dist"
 ENV_FILE="/etc/fleetza/supplier.env"
 
 if [ ! -f "$ENV_FILE" ]; then
@@ -31,11 +31,8 @@ cd "$REPO_DIR/frontend"
 npm ci --no-audit --no-fund
 npm run build
 
-echo "==> [2/5] Publishing Frontend to $WEB_DIR..."
-mkdir -p "$WEB_DIR"
-rm -rf "$WEB_DIR"/*
-cp -r "$REPO_DIR/frontend/dist/"* "$WEB_DIR/"
-chown -R www-data:www-data "$WEB_DIR"
+echo "==> [2/5] Setting Nginx Read Permissions on $WEB_DIR..."
+chmod -R a+rX "$WEB_DIR"
 
 echo "==> [3/5] Building Backend JAR (Spring Boot + Web Push VAPID)..."
 cd "$REPO_DIR/backend"
@@ -58,7 +55,7 @@ systemctl restart fleetza-supplier
 nginx -t && systemctl reload nginx
 
 echo "Waiting for backend on http://127.0.0.1:${APP_PORT}/api/health ..."
-for i in $(seq 1 30); do
+for i in $(seq 1 45); do
   if curl -fsS "http://127.0.0.1:${APP_PORT}/api/health" >/dev/null 2>&1; then
     echo ""
     curl -s "http://127.0.0.1:${APP_PORT}/api/health"

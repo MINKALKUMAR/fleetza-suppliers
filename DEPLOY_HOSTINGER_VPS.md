@@ -59,11 +59,12 @@ mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS fleetza_suppliers CHARACTER S
 ```
 *(If using Option B, set `DB_USERNAME=root` and your MySQL root password as `DB_PASSWORD=` in `/etc/fleetza/supplier.env`.)*
 
-### Clone the Repository on the VPS
+### Clone or Upload the Repository on the VPS
 ```bash
-sudo git clone https://github.com/fleetza180625/supplier.git /opt/fleetza-supplier-src
+sudo mkdir -p "/var/www/Fleetza Private Limited"
+sudo git clone https://github.com/fleetza180625/supplier.git "/var/www/Fleetza Private Limited/Supplier"
 ```
-*(If `fleetza180625/supplier` is private on GitHub, enter your GitHub username + a Personal Access Token when prompted, or clone via SSH deploy key.)*
+*(If `fleetza180625/supplier` is private on GitHub, enter your GitHub username + a Personal Access Token when prompted, or upload directly to `/var/www/Fleetza Private Limited/Supplier`.)*
 
 ---
 
@@ -72,7 +73,7 @@ sudo git clone https://github.com/fleetza180625/supplier.git /opt/fleetza-suppli
 Generate your free permanent Web Push VAPID keys + a 64-character `JWT_SECRET`:
 
 ```bash
-cd /opt/fleetza-supplier-src
+cd "/var/www/Fleetza Private Limited/Supplier"
 node deploy/generate-vapid-keys.mjs
 openssl rand -hex 32
 ```
@@ -81,7 +82,7 @@ Create `/etc/fleetza/supplier.env` (without touching `/etc/fleetza/fleetza.env`)
 
 ```bash
 sudo mkdir -p /etc/fleetza
-sudo cp /opt/fleetza-supplier-src/deploy/fleetza.env.example /etc/fleetza/supplier.env
+sudo cp "/var/www/Fleetza Private Limited/Supplier/deploy/fleetza.env.example" /etc/fleetza/supplier.env
 sudo chown root:root /etc/fleetza/supplier.env
 sudo chmod 600 /etc/fleetza/supplier.env
 sudo nano /etc/fleetza/supplier.env
@@ -100,7 +101,7 @@ Fill in these values inside `/etc/fleetza/supplier.env`:
 ## 5. Build, Start Backend Service, Enable Nginx & Issue HTTPS SSL
 
 ```bash
-cd /opt/fleetza-supplier-src
+cd "/var/www/Fleetza Private Limited/Supplier"
 sudo bash deploy/deploy-vps.sh
 sudo certbot --nginx -d supplier.fleetza.in --non-interactive --agree-tos -m admin@fleetza.in
 ```
@@ -121,5 +122,5 @@ First login on **`https://supplier.fleetza.in`**:
 
 Whenever you push new commits:
 ```bash
-cd /opt/fleetza-supplier-src && sudo git pull && sudo bash deploy/deploy-vps.sh
+cd "/var/www/Fleetza Private Limited/Supplier" && sudo git pull && sudo bash deploy/deploy-vps.sh
 ```
